@@ -4,13 +4,32 @@ use hidapi::{HidApi, HidDevice, HidDeviceInfo};
 
 const DUALSHOCK4_VENDOR_ID:u16 = 0x54C;
 const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
+
 const DUALSHOCK4_BLUETOOTH_RAW_BUFFER_DATA_LENGTH:usize = 10;
 const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
-const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 12;
 
+const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 12;
+const DUALSHOCK4_DATA_BLOCK_HEADSET:usize = 30;
+
+const DUALSHOCK4_HEADSET_MASK_NONE:u8 = 0x1b;
+const DUALSHOCK4_HEADSET_MASK_HEADPHONES:u8 = 0x3b;
+const DUALSHOCK4_HEADSET_MASK_HEADSET_WITH_MIC:u8 = 0x7b;
+
+#[derive(Debug)]
+enum Headset {
+    None,
+    Headphones,
+    HeadsetWithMic
+}
+
+#[derive(Debug)]
+struct Dualshock4Data {
+    batteryLevel:u8,
+    headset: Headset
+}
 
 enum Dualshock4Result {
-    Data(u8),
+    Data(Dualshock4Data),
     Error(&'static str)
 }
 
@@ -37,7 +56,24 @@ fn read_device_data_to_string(controller: &HidDevice) -> String {
 }
 
 fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock4Result {
-    return Dualshock4Result::Data(buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL]);
+    let batteryLevel = buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL];
+    let headset = decode_headset_value(buf[DUALSHOCK4_DATA_BLOCK_HEADSET]);
+
+    let data = Dualshock4Data {
+        batteryLevel,
+        headset
+    };
+
+    return Dualshock4Result::Data(data);
+}
+
+fn decode_headset_value(val:u8) -> Headset {
+    match val {
+        DUALSHOCK4_HEADSET_MASK_NONE => return Headset::None,
+        DUALSHOCK4_HEADSET_MASK_HEADPHONES => return Headset::Headphones,
+        DUALSHOCK4_HEADSET_MASK_HEADSET_WITH_MIC => return Headset::HeadsetWithMic,
+        _ => return Headset::None
+    }
 }
 
 fn main() {
@@ -63,7 +99,7 @@ fn main() {
         }
 
         match decode_usb_buf(buf) {
-            Dualshock4Result::Data(data) => println!("Battery level:\t{:?}", data),
+            Dualshock4Result::Data(data) => println!("Data:\t{:?}", data),
             Dualshock4Result::Error(err) => println!("Error:\t{}", err)
         }
     }
