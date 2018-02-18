@@ -1,0 +1,7 @@
+[package]
+name = "rust-dualshock4"
+version = "0.1.0"
+authors = ["Niko Viik <Niko.Viik@Wunderdog.fi>"]
+
+[dependencies]
+hidapi = "0.4.1"
