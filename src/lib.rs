@@ -2,6 +2,9 @@ extern crate hidapi;
 
 use hidapi::{HidApi, HidDevice};
 
+mod model;
+pub use model::{Headset,Dualshock4Data};
+
 const DUALSHOCK4_VENDOR_ID:u16 = 0x54C;
 const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
 
@@ -17,19 +20,6 @@ const DUALSHOCK4_HEADSET_MASK_HEADSET_WITH_MIC:u8 = 0x7b;
 
 pub type Dualshock4Error = &'static str;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
-
-#[derive(Debug)]
-pub enum Headset {
-    None,
-    Headphones,
-    HeadsetWithMic
-}
-
-#[derive(Debug)]
-pub struct Dualshock4Data {
-    batteryLevel: u8,
-    headset: Headset
-}
 
 pub fn read_ds4_data(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
     let mut buf = [0; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
