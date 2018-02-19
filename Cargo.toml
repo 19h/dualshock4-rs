@@ -9,7 +9,3 @@ repository = "https://bitbucket.org/unessa/dualshock4-rust"
 
 [dependencies]
 hidapi = "0.4.1"
-
-#[lib]
-#name = "dualshock4"
-#crate-type = ["dylib"]
