@@ -1,7 +1,11 @@
 [package]
-name = "rust-dualshock4"
-version = "0.1.0"
+name = "dualshock4"
+version = "0.4.1"
 authors = ["Niko Viik <Niko.Viik@Wunderdog.fi>"]
+description = "dualshock4 controller using hidapi"
+keywords = ["dualshock4", "dualshock"]
+license = "MIT"
+repository = "https://bitbucket.org/unessa/dualshock4-rust"
 
 [dependencies]
 hidapi = "0.4.1"
