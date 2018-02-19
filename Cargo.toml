@@ -1,7 +1,16 @@
 [package]
-name = "rust-dualshock4"
-version = "0.1.0"
+name = "dualshock4"
+version = "0.4.1"
 authors = ["Niko Viik <Niko.Viik@Wunderdog.fi>"]
+description = "dualshock4 controller using hidapi"
+documentation = "https://docs.rs/hidapi"
+keywords = ["dualshock4", "hid", "api", "usb", "bluetooth", "binding", "wrapper"]
+license = "MIT"
+repository = "https://bitbucket.org/unessa/dualshock4-rust"
 
 [dependencies]
 hidapi = "0.4.1"
+
+#[lib]
+#name = "dualshock4"
+#crate-type = ["dylib"]
