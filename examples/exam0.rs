@@ -19,11 +19,3 @@ fn main() {
         println!("{:?}", ds4_data);
     }
 }
-
-
-
-//extern crate dualshock4;
-//
-//fn main() {
-//    dualshock4::it_works();
-//}

@@ -1,11 +1,3 @@
-// TOIMII
-//pub fn it_works() {
-//    println!("hello world!");
-//}
-
-
-
-
 extern crate hidapi;
 
 use hidapi::{HidApi, HidDevice};
@@ -72,19 +64,6 @@ fn decode_headset_value(val:u8) -> Headset {
         _ => return Headset::None
     }
 }
-
-//fn main() {
-//    let api = HidApi::new()
-//        .expect("Failed to create HID API instance.");
-//
-//    let controller = api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
-//        .expect("Failed to open device");
-//
-//    loop {
-//        let ds4_data = read_ds4_data(&controller);
-//        println!("{:?}", ds4_data);
-//    }
-//}
 
 
 
