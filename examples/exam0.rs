@@ -10,6 +10,7 @@ fn main() {
     let api = HidApi::new()
         .expect("Failed to create HID API instance.");
 
+    // TODO 19.02.2018 nviik - dualshock4 library should contain this functionality (ie. get_controller or get_device)
     let controller = api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
         .expect("Failed to open device");
 
