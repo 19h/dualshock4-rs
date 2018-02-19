@@ -15,9 +15,9 @@ pub enum Headset {
 }
 
 pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Headset {
-    let val = buf[DATA_BLOCK_HEADSET];
+    let mask = buf[DATA_BLOCK_HEADSET];
 
-    match val {
+    match mask {
         HEADSET_MASK_NONE => return Headset::None,
         HEADSET_MASK_HEADPHONES => return Headset::Headphones,
         HEADSET_MASK_HEADSET_WITH_MIC => return Headset::HeadsetWithMic,
