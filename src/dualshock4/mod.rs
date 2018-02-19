@@ -3,6 +3,9 @@ use hidapi::{HidApi, HidDevice};
 pub mod headset;
 pub use headset::*;
 
+pub mod buttons;
+pub use buttons::*;
+
 const DUALSHOCK4_VENDOR_ID:u16 = 0x54C;
 const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
 
@@ -12,7 +15,8 @@ const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 12;
 #[derive(Debug)]
 pub struct Dualshock4Data {
     pub battery_level: u8,
-    pub headset: Headset
+    pub headset: Headset,
+    pub buttons: Buttons
 }
 
 pub type Dualshock4Error = &'static str;
@@ -36,10 +40,12 @@ pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
 fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock4Result<Dualshock4Data> {
     let battery_level = buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL];
     let headset = headset::decode(buf);
+    let buttons = buttons::decode(buf);
 
     return Ok(Dualshock4Data {
         battery_level,
-        headset
+        headset,
+        buttons
     });
 }
 
