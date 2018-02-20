@@ -17,10 +17,10 @@ const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
 
 const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 0x12;
 
-#[derive(PartialEq,Debug)]
+#[derive(PartialEq, Debug)]
 pub struct Dualshock4Data {
     pub battery_level: u8,
-//    pub headset: Headset,
+    pub headset: Headset,
 //    pub buttons: Buttons,
 //    pub analog_sticks: AnalogSticks
 }
@@ -51,7 +51,7 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
 
     return Ok(Dualshock4Data {
         battery_level,
-//        headset,
+        headset,
 //        buttons,
 //        analog_sticks
     });
@@ -71,19 +71,19 @@ mod tests {
     #[test]
     fn test_decode_usb_buf() {
         let mut buf = [0u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
-
-
         let expected = generate_test_data(&mut buf[..]);
-        let result = decode_usb_buf(buf).expect("Fails");
+        let decoded = decode_usb_buf(buf).expect("Fails");
 
-        assert_eq!(expected, result);
+        assert_eq!(expected, decoded);
     }
 
     fn generate_test_data(buf: &mut[u8]) -> Dualshock4Data {
         let battery_level = generate_battery_level_data(&mut buf[..]);
+        let headset = generate_headeset_data(&mut buf[..]);
 
         return Dualshock4Data {
-            battery_level
+            battery_level,
+            headset
         }
     }
 
@@ -92,7 +92,22 @@ mod tests {
         buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL] = value;
         return value;
     }
-//
-//    fn generate_headeset_data(buf: &mut [u8]) -> Headset {
-//    }
+
+    fn generate_headeset_data(buf: &mut [u8]) -> Headset {
+        let value = rand::thread_rng().gen_range(0, 3);
+
+        buf[headset::DATA_BLOCK_HEADSET] = match value {
+            0 => headset::HEADSET_MASK_NONE,
+            1 => headset::HEADSET_MASK_HEADPHONES,
+            2 => headset::HEADSET_MASK_HEADSET_WITH_MIC,
+            _ => 0
+        };
+
+        return match value {
+            0 => Headset::None,
+            1 => Headset::Headphones,
+            2 => Headset::HeadsetWithMic,
+            _ => Headset::Unknown
+        };
+    }
 }

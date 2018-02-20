@@ -1,12 +1,12 @@
 use dualshock4::DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH;
 
-const DATA_BLOCK_HEADSET:usize = 30;
+pub const DATA_BLOCK_HEADSET:usize = 30;
 
-const HEADSET_MASK_NONE:u8 = 0x1b;
-const HEADSET_MASK_HEADPHONES:u8 = 0x3b;
-const HEADSET_MASK_HEADSET_WITH_MIC:u8 = 0x7b;
+pub const HEADSET_MASK_NONE:u8 = 0x1b;
+pub const HEADSET_MASK_HEADPHONES:u8 = 0x3b;
+pub const HEADSET_MASK_HEADSET_WITH_MIC:u8 = 0x7b;
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub enum Headset {
     None,
     Headphones,
