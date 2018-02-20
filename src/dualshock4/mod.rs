@@ -21,8 +21,8 @@ const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 0x12;
 pub struct Dualshock4Data {
     pub battery_level: u8,
     pub headset: Headset,
+    pub analog_sticks: AnalogSticks,
 //    pub buttons: Buttons,
-//    pub analog_sticks: AnalogSticks
 }
 
 pub type Dualshock4Error = &'static str;
@@ -37,7 +37,7 @@ pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
         Err(err) => return Err(err)
     }
 
-    match decode_usb_buf(buf) {
+    return match decode_usb_buf(buf) {
         Ok(data) => return Ok(data),
         Err(err) => return Err(err)
     }
@@ -52,8 +52,8 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
     return Ok(Dualshock4Data {
         battery_level,
         headset,
+        analog_sticks,
 //        buttons,
-//        analog_sticks
     });
 }
 
@@ -80,10 +80,12 @@ mod tests {
     fn generate_test_data(buf: &mut[u8]) -> Dualshock4Data {
         let battery_level = generate_battery_level_data(&mut buf[..]);
         let headset = generate_headeset_data(&mut buf[..]);
+        let analog_sticks = generate_analog_sticks_data(&mut buf[..]);
 
         return Dualshock4Data {
             battery_level,
-            headset
+            headset,
+            analog_sticks
         }
     }
 
@@ -109,5 +111,30 @@ mod tests {
             2 => Headset::HeadsetWithMic,
             _ => Headset::Unknown
         };
+    }
+
+    fn generate_analog_sticks_data(buf: &mut [u8]) -> AnalogSticks {
+        let left = generate_analog_stick_data();
+        let right = generate_analog_stick_data();
+
+        buf[analog_sticks::ANALOG_STICK_CONFIG_LEFT.block_x] = left.x;
+        buf[analog_sticks::ANALOG_STICK_CONFIG_LEFT.block_y] = left.y;
+
+        buf[analog_sticks::ANALOG_STICK_CONFIG_RIGHT.block_x] = right.x;
+        buf[analog_sticks::ANALOG_STICK_CONFIG_RIGHT.block_y] = right.y;
+
+        return AnalogSticks {
+            left,
+            right
+        }
+    }
+
+    fn generate_analog_stick_data() -> AnalogStick {
+        let x:u8 = rand::thread_rng().gen();
+        let y:u8 = rand::thread_rng().gen();
+
+        return AnalogStick {
+            x, y
+        }
     }
 }
