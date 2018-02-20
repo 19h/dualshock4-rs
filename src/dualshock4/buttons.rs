@@ -1,38 +1,38 @@
 use dualshock4::DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH;
 
-struct ButtonConfig {
-    block: usize,
-    value: u8,
-    mask: u8,
-    analog_block: Option<usize>
+pub struct ButtonConfig {
+    pub block: usize,
+    pub value: u8,
+    pub mask: u8,
+    pub analog_block: Option<usize>
 }
 
-struct ButtonsConfig {
-    x: ButtonConfig,
-    square: ButtonConfig,
-    triangle: ButtonConfig,
-    circle: ButtonConfig,
-    dpad_up: ButtonConfig,
-    dpad_up_right: ButtonConfig,
-    dpad_right: ButtonConfig,
-    dpad_down_right: ButtonConfig,
-    dpad_down: ButtonConfig,
-    dpad_down_left: ButtonConfig,
-    dpad_left: ButtonConfig,
-    dpad_up_left: ButtonConfig,
-    share: ButtonConfig,
-    options: ButtonConfig,
-    psx: ButtonConfig,
-    touchpad: ButtonConfig,
-    l1: ButtonConfig,
-    r1: ButtonConfig,
-    left_stick: ButtonConfig,
-    right_stick: ButtonConfig,
-    l2: ButtonConfig,
-    r2: ButtonConfig
+pub struct ButtonsConfig {
+    pub x: ButtonConfig,
+    pub square: ButtonConfig,
+    pub triangle: ButtonConfig,
+    pub circle: ButtonConfig,
+    pub dpad_up: ButtonConfig,
+    pub dpad_up_right: ButtonConfig,
+    pub dpad_right: ButtonConfig,
+    pub dpad_down_right: ButtonConfig,
+    pub dpad_down: ButtonConfig,
+    pub dpad_down_left: ButtonConfig,
+    pub dpad_left: ButtonConfig,
+    pub dpad_up_left: ButtonConfig,
+    pub share: ButtonConfig,
+    pub options: ButtonConfig,
+    pub psx: ButtonConfig,
+    pub touchpad: ButtonConfig,
+    pub l1: ButtonConfig,
+    pub r1: ButtonConfig,
+    pub left_stick: ButtonConfig,
+    pub right_stick: ButtonConfig,
+    pub l2: ButtonConfig,
+    pub r2: ButtonConfig
 }
 
-const BUTTONS_CONFIG:ButtonsConfig = ButtonsConfig {
+pub const BUTTONS_CONFIG:ButtonsConfig = ButtonsConfig {
     x: ButtonConfig {
         block: 0x05,
         value: 0x20,
@@ -167,13 +167,13 @@ const BUTTONS_CONFIG:ButtonsConfig = ButtonsConfig {
     }
 };
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct Button {
     pub pressed: bool,
     pub analog_value: Option<u8>
 }
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct Buttons {
     pub x: Button,
     pub square: Button,
