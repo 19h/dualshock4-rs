@@ -1,11 +1,9 @@
 use hidapi::{HidApi, HidDevice};
 
 pub mod headset;
-//pub use headset::*;
 pub use self::headset::{Headset};
 
 pub mod buttons;
-//pub use buttons::*;
 pub use self::buttons::{Buttons, Button};
 
 pub mod analog_sticks;
@@ -19,12 +17,12 @@ const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
 
 const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 0x12;
 
-#[derive(Debug)]
+#[derive(PartialEq,Debug)]
 pub struct Dualshock4Data {
     pub battery_level: u8,
-    pub headset: Headset,
-    pub buttons: Buttons,
-    pub analog_sticks: AnalogSticks
+//    pub headset: Headset,
+//    pub buttons: Buttons,
+//    pub analog_sticks: AnalogSticks
 }
 
 pub type Dualshock4Error = &'static str;
@@ -53,13 +51,48 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
 
     return Ok(Dualshock4Data {
         battery_level,
-        headset,
-        buttons,
-        analog_sticks
+//        headset,
+//        buttons,
+//        analog_sticks
     });
 }
 
 pub fn get_device(api: &HidApi) -> HidDevice {
     return api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
         .expect("Failed to open device");
+}
+
+#[cfg(test)]
+mod tests {
+    extern crate rand;
+    use self::rand::Rng;
+    use dualshock4::*;
+
+    #[test]
+    fn test_decode_usb_buf() {
+        let mut buf = [0u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
+
+
+        let expected = generate_test_data(&mut buf[..]);
+        let result = decode_usb_buf(buf).expect("Fails");
+
+        assert_eq!(expected, result);
+    }
+
+    fn generate_test_data(buf: &mut[u8]) -> Dualshock4Data {
+        let battery_level = generate_battery_level_data(&mut buf[..]);
+
+        return Dualshock4Data {
+            battery_level
+        }
+    }
+
+    fn generate_battery_level_data(buf: &mut[u8]) -> u8 {
+        let value:u8 = rand::thread_rng().gen_range(0, 22);
+        buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL] = value;
+        return value;
+    }
+//
+//    fn generate_headeset_data(buf: &mut [u8]) -> Headset {
+//    }
 }
