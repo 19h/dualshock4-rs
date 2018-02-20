@@ -1,19 +1,23 @@
 use hidapi::{HidApi, HidDevice};
 
 pub mod headset;
-pub use headset::*;
+//pub use headset::*;
+pub use self::headset::{Headset};
 
 pub mod buttons;
-pub use buttons::*;
+//pub use buttons::*;
+pub use self::buttons::{Buttons, Button};
 
 pub mod analog_sticks;
-pub use analog_sticks::*;
+pub use self::analog_sticks::{AnalogSticks, AnalogStick};
 
 const DUALSHOCK4_VENDOR_ID:u16 = 0x54C;
 const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
 
+// TODO 20.02.2018 nviik - Implement reading bluetooth data
 const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
-const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 12;
+
+const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 0x12;
 
 #[derive(Debug)]
 pub struct Dualshock4Data {
