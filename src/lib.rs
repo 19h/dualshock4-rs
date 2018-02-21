@@ -1,3 +1,6 @@
+#![feature(test)]
+extern crate test;
+
 mod dualshock4;
 
 pub use dualshock4::{

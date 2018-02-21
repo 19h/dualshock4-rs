@@ -63,10 +63,22 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
 mod tests {
     extern crate rand;
 
+    use test::{Bencher, black_box};
+
     use self::rand::Rng;
     use dualshock4::*;
 
-    // TODO 21.02.2018 nviik - Figure out how to run this test like 1000 times.
+    // TODO 21.02.2018 nviik - Consider to move this benchmark under `bench` directory
+    //   as suggested in here http://seenaburns.com/benchmarking-rust-with-cargo-bench
+    #[bench]
+    fn bench_test_decode_usb_buf(b: &mut Bencher) {
+        b.iter(|| {
+            for _i in 1..1000 {
+                black_box(test_decode_usb_buf());
+            }
+        });
+    }
+
     #[test]
     fn test_decode_usb_buf() {
         let mut buf = [0u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
