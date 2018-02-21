@@ -18,9 +18,9 @@ pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Headset {
     let mask = buf[DATA_BLOCK_HEADSET];
 
     match mask {
-        HEADSET_MASK_NONE => return Headset::None,
-        HEADSET_MASK_HEADPHONES => return Headset::Headphones,
-        HEADSET_MASK_HEADSET_WITH_MIC => return Headset::HeadsetWithMic,
-        _ => return Headset::Unknown
+        HEADSET_MASK_NONE => Headset::None,
+        HEADSET_MASK_HEADPHONES => Headset::Headphones,
+        HEADSET_MASK_HEADSET_WITH_MIC => Headset::HeadsetWithMic,
+        _ => Headset::Unknown
     }
 }
