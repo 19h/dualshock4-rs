@@ -32,8 +32,7 @@ pub struct ButtonsConfig {
     pub r2: ButtonConfig
 }
 
-// TODO 21.02.2018 nviik - Rename to `CONFIG`. Outside from this file we can use `buttons::CONFIG`
-pub const BUTTONS_CONFIG:ButtonsConfig = ButtonsConfig {
+pub const CONFIG:ButtonsConfig = ButtonsConfig {
     x: ButtonConfig {
         block: 0x05,
         value: 0x20,
@@ -202,28 +201,28 @@ pub struct Buttons {
 
 pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Buttons {
     Buttons {
-        x: decode_button(&BUTTONS_CONFIG.x, buf),
-        square: decode_button(&BUTTONS_CONFIG.square, buf),
-        triangle: decode_button(&BUTTONS_CONFIG.triangle, buf),
-        circle: decode_button(&BUTTONS_CONFIG.circle, buf),
-        dpad_up: decode_button(&BUTTONS_CONFIG.dpad_up, buf),
-        dpad_up_right: decode_button(&BUTTONS_CONFIG.dpad_up_right, buf),
-        dpad_right: decode_button(&BUTTONS_CONFIG.dpad_right, buf),
-        dpad_down_right: decode_button(&BUTTONS_CONFIG.dpad_down_right, buf),
-        dpad_down: decode_button(&BUTTONS_CONFIG.dpad_down, buf),
-        dpad_down_left: decode_button(&BUTTONS_CONFIG.dpad_down_left, buf),
-        dpad_left: decode_button(&BUTTONS_CONFIG.dpad_left, buf),
-        dpad_up_left: decode_button(&BUTTONS_CONFIG.dpad_up_left, buf),
-        share: decode_button(&BUTTONS_CONFIG.share, buf),
-        options: decode_button(&BUTTONS_CONFIG.options, buf),
-        psx: decode_button(&BUTTONS_CONFIG.psx, buf),
-        touchpad: decode_button(&BUTTONS_CONFIG.touchpad, buf),
-        l1: decode_button(&BUTTONS_CONFIG.l1, buf),
-        r1: decode_button(&BUTTONS_CONFIG.r1, buf),
-        left_stick: decode_button(&BUTTONS_CONFIG.left_stick, buf),
-        right_stick: decode_button(&BUTTONS_CONFIG.right_stick, buf),
-        l2: decode_button(&BUTTONS_CONFIG.l2, buf),
-        r2: decode_button(&BUTTONS_CONFIG.r2, buf)
+        x: decode_button(&CONFIG.x, buf),
+        square: decode_button(&CONFIG.square, buf),
+        triangle: decode_button(&CONFIG.triangle, buf),
+        circle: decode_button(&CONFIG.circle, buf),
+        dpad_up: decode_button(&CONFIG.dpad_up, buf),
+        dpad_up_right: decode_button(&CONFIG.dpad_up_right, buf),
+        dpad_right: decode_button(&CONFIG.dpad_right, buf),
+        dpad_down_right: decode_button(&CONFIG.dpad_down_right, buf),
+        dpad_down: decode_button(&CONFIG.dpad_down, buf),
+        dpad_down_left: decode_button(&CONFIG.dpad_down_left, buf),
+        dpad_left: decode_button(&CONFIG.dpad_left, buf),
+        dpad_up_left: decode_button(&CONFIG.dpad_up_left, buf),
+        share: decode_button(&CONFIG.share, buf),
+        options: decode_button(&CONFIG.options, buf),
+        psx: decode_button(&CONFIG.psx, buf),
+        touchpad: decode_button(&CONFIG.touchpad, buf),
+        l1: decode_button(&CONFIG.l1, buf),
+        r1: decode_button(&CONFIG.r1, buf),
+        left_stick: decode_button(&CONFIG.left_stick, buf),
+        right_stick: decode_button(&CONFIG.right_stick, buf),
+        l2: decode_button(&CONFIG.l2, buf),
+        r2: decode_button(&CONFIG.r2, buf)
     }
 }
 
