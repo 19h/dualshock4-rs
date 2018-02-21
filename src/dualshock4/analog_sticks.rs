@@ -34,15 +34,15 @@ pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> AnalogSticks 
     let left = decode_analog_stick(ANALOG_STICK_CONFIG_LEFT, buf);
     let right = decode_analog_stick(ANALOG_STICK_CONFIG_RIGHT, buf);
 
-    return AnalogSticks {
+    AnalogSticks {
         left,
         right
     }
 }
 
 fn decode_analog_stick(config: AnalogStickConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> AnalogStick {
-    return AnalogStick {
+    AnalogStick {
         x: buf[config.block_x],
         y: buf[config.block_y]
-    };
+    }
 }

@@ -201,7 +201,7 @@ pub struct Buttons {
 }
 
 pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Buttons {
-    return Buttons {
+    Buttons {
         x: decode_button(BUTTONS_CONFIG.x, buf),
         square: decode_button(BUTTONS_CONFIG.square, buf),
         triangle: decode_button(BUTTONS_CONFIG.triangle, buf),
@@ -231,7 +231,7 @@ fn decode_button(config: ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_
     let is_pressed = is_button_pressed(&config, buf);
     let analog_value = get_analog_value(&config, buf);
 
-    return Button {
+    Button {
         pressed: is_pressed,
         analog_value
     }
@@ -242,15 +242,15 @@ fn is_button_pressed(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_
 
     // special case for dpadUp
     if config.block == 0x05 && config.value == 0x00 {
-        return block == 0;
+        return block == 0
     }
 
     // special case for dpads, only one can be pressed at time
     if config.block == 0x05 && block < 0x08 {
-        return block == config.value;
+        return block == config.value
     }
 
-    return (block & config.value) == config.value;
+    (block & config.value) == config.value
 }
 
 fn get_analog_value(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Option<u8> {
