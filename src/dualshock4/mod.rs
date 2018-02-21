@@ -1,5 +1,7 @@
 use hidapi::{HidApi, HidDevice};
 
+mod battery_level;
+
 pub mod headset;
 pub use self::headset::{Headset};
 
@@ -14,9 +16,6 @@ const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
 
 // TODO 20.02.2018 nviik - Implement reading bluetooth data
 const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
-
-// TODO 21.02.2018 nviik - Decoding battery level should be in own file `battery.rs`
-const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 0x12;
 
 #[derive(PartialEq, Debug)]
 pub struct Dualshock4Data {
@@ -48,7 +47,7 @@ pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
 }
 
 fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock4Result<Dualshock4Data> {
-    let battery_level = buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL];
+    let battery_level = battery_level::decode(buf);
     let headset = headset::decode(buf);
     let buttons = buttons::decode(buf);
     let analog_sticks = analog_sticks::decode(buf);
@@ -94,7 +93,7 @@ mod tests {
 
     fn generate_battery_level_data(buf: &mut[u8]) -> u8 {
         let value:u8 = rand::thread_rng().gen_range(0, 22);
-        buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL] = value;
+        buf[battery_level::DATA_BLOCK_BATTERY_LEVEL] = value;
         return value;
     }
 
