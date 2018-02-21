@@ -202,34 +202,34 @@ pub struct Buttons {
 
 pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Buttons {
     Buttons {
-        x: decode_button(BUTTONS_CONFIG.x, buf),
-        square: decode_button(BUTTONS_CONFIG.square, buf),
-        triangle: decode_button(BUTTONS_CONFIG.triangle, buf),
-        circle: decode_button(BUTTONS_CONFIG.circle, buf),
-        dpad_up: decode_button(BUTTONS_CONFIG.dpad_up, buf),
-        dpad_up_right: decode_button(BUTTONS_CONFIG.dpad_up_right, buf),
-        dpad_right: decode_button(BUTTONS_CONFIG.dpad_right, buf),
-        dpad_down_right: decode_button(BUTTONS_CONFIG.dpad_down_right, buf),
-        dpad_down: decode_button(BUTTONS_CONFIG.dpad_down, buf),
-        dpad_down_left: decode_button(BUTTONS_CONFIG.dpad_down_left, buf),
-        dpad_left: decode_button(BUTTONS_CONFIG.dpad_left, buf),
-        dpad_up_left: decode_button(BUTTONS_CONFIG.dpad_up_left, buf),
-        share: decode_button(BUTTONS_CONFIG.share, buf),
-        options: decode_button(BUTTONS_CONFIG.options, buf),
-        psx: decode_button(BUTTONS_CONFIG.psx, buf),
-        touchpad: decode_button(BUTTONS_CONFIG.touchpad, buf),
-        l1: decode_button(BUTTONS_CONFIG.l1, buf),
-        r1: decode_button(BUTTONS_CONFIG.r1, buf),
-        left_stick: decode_button(BUTTONS_CONFIG.left_stick, buf),
-        right_stick: decode_button(BUTTONS_CONFIG.right_stick, buf),
-        l2: decode_button(BUTTONS_CONFIG.l2, buf),
-        r2: decode_button(BUTTONS_CONFIG.r2, buf)
+        x: decode_button(&BUTTONS_CONFIG.x, buf),
+        square: decode_button(&BUTTONS_CONFIG.square, buf),
+        triangle: decode_button(&BUTTONS_CONFIG.triangle, buf),
+        circle: decode_button(&BUTTONS_CONFIG.circle, buf),
+        dpad_up: decode_button(&BUTTONS_CONFIG.dpad_up, buf),
+        dpad_up_right: decode_button(&BUTTONS_CONFIG.dpad_up_right, buf),
+        dpad_right: decode_button(&BUTTONS_CONFIG.dpad_right, buf),
+        dpad_down_right: decode_button(&BUTTONS_CONFIG.dpad_down_right, buf),
+        dpad_down: decode_button(&BUTTONS_CONFIG.dpad_down, buf),
+        dpad_down_left: decode_button(&BUTTONS_CONFIG.dpad_down_left, buf),
+        dpad_left: decode_button(&BUTTONS_CONFIG.dpad_left, buf),
+        dpad_up_left: decode_button(&BUTTONS_CONFIG.dpad_up_left, buf),
+        share: decode_button(&BUTTONS_CONFIG.share, buf),
+        options: decode_button(&BUTTONS_CONFIG.options, buf),
+        psx: decode_button(&BUTTONS_CONFIG.psx, buf),
+        touchpad: decode_button(&BUTTONS_CONFIG.touchpad, buf),
+        l1: decode_button(&BUTTONS_CONFIG.l1, buf),
+        r1: decode_button(&BUTTONS_CONFIG.r1, buf),
+        left_stick: decode_button(&BUTTONS_CONFIG.left_stick, buf),
+        right_stick: decode_button(&BUTTONS_CONFIG.right_stick, buf),
+        l2: decode_button(&BUTTONS_CONFIG.l2, buf),
+        r2: decode_button(&BUTTONS_CONFIG.r2, buf)
     }
 }
 
-fn decode_button(config: ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Button {
-    let is_pressed = is_button_pressed(&config, buf);
-    let analog_value = get_analog_value(&config, buf);
+fn decode_button(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Button {
+    let is_pressed = is_button_pressed(config, buf);
+    let analog_value = get_analog_value(config, buf);
 
     Button {
         pressed: is_pressed,
