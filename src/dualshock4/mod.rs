@@ -15,6 +15,7 @@ const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
 // TODO 20.02.2018 nviik - Implement reading bluetooth data
 const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
 
+// TODO 21.02.2018 nviik - Decoding battery level should be in own file `battery.rs`
 const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 0x12;
 
 #[derive(PartialEq, Debug)]
@@ -28,6 +29,7 @@ pub struct Dualshock4Data {
 pub type Dualshock4Error = &'static str;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
+// TODO 21.02.2018 nviik - Maybe this should return HidResult so error handling is up to user.
 pub fn get_device(api: &HidApi) -> HidDevice {
     return api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
         .expect("Failed to open device");
@@ -70,6 +72,7 @@ mod tests {
     use self::rand::Rng;
     use dualshock4::*;
 
+    // TODO 21.02.2018 nviik - Figure out how to run this test like 1000 times.
     #[test]
     fn test_decode_usb_buf() {
         let mut buf = [0u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
@@ -81,7 +84,7 @@ mod tests {
 
     fn generate_test_data(buf: &mut[u8]) -> Dualshock4Data {
         let battery_level = generate_battery_level_data(&mut buf[..]);
-        let headset = generate_headeset_data(&mut buf[..]);
+        let headset = generate_headset_data(&mut buf[..]);
         let analog_sticks = generate_analog_sticks_data(&mut buf[..]);
         let buttons = generate_buttons_data(&mut buf[..]);
 
@@ -99,7 +102,7 @@ mod tests {
         return value;
     }
 
-    fn generate_headeset_data(buf: &mut [u8]) -> Headset {
+    fn generate_headset_data(buf: &mut [u8]) -> Headset {
         let value = rand::thread_rng().gen_range(0, 3);
 
         buf[headset::DATA_BLOCK_HEADSET] = match value {
@@ -133,7 +136,7 @@ mod tests {
         }
     }
 
-    // TODO 20.02.2018 nviik - Maybe pass config and buf as parameters?
+    // TODO 20.02.2018 nviik - This should get config and buf as parameters.
     fn generate_analog_stick_data() -> AnalogStick {
         let x:u8 = rand::thread_rng().gen();
         let y:u8 = rand::thread_rng().gen();
@@ -174,7 +177,7 @@ mod tests {
         static mut IS_DPAD_PRESSED:bool = false;
         let mut is_pressed:bool = rand::thread_rng().gen();
 
-        // special case for dpads, because only one can pressed at the time
+        // special case for dpads, because only one can pressed at the time.
         if config.block == 0x05 && config.value < 0x08 {
             unsafe {
                 if IS_DPAD_PRESSED {
@@ -200,11 +203,8 @@ mod tests {
             let analog: u8 = rand::thread_rng().gen();
             analog_value = Some(analog);
 
-            match config.analog_block {
-                Some(0x08) => buf[0x08] += analog,
-                Some(0x09) => buf[0x09] += analog,
-                _ => ()
-            }
+            let block = config.analog_block.unwrap();
+            buf[block] += analog;
         }
 
         return Button {

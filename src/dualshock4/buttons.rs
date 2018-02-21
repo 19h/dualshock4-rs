@@ -32,6 +32,7 @@ pub struct ButtonsConfig {
     pub r2: ButtonConfig
 }
 
+// TODO 21.02.2018 nviik - Rename to `CONFIG`. Outside from this file we can use `buttons::CONFIG`
 pub const BUTTONS_CONFIG:ButtonsConfig = ButtonsConfig {
     x: ButtonConfig {
         block: 0x05,

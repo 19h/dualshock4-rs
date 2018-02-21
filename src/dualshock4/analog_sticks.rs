@@ -5,6 +5,9 @@ pub struct AnalogStickConfig {
     pub block_y: usize
 }
 
+// TODO 21.02.2018 nviik - Add struct `AnalogStickConfig` which contains configurations
+//   for both left and right analog sticks. Use and define config in `CONFIG` property.
+
 pub const ANALOG_STICK_CONFIG_LEFT: AnalogStickConfig = AnalogStickConfig {
     block_x: 0x01,
     block_y: 0x02

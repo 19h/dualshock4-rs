@@ -1,3 +1,4 @@
+// TODO 21.02.2018 nviik - Is this in correct place? Should external crate's be defined in lib or in mod?
 extern crate hidapi;
 
 mod dualshock4;
