@@ -117,14 +117,8 @@ mod tests {
     }
 
     fn generate_analog_sticks_data(buf: &mut [u8]) -> AnalogSticks {
-        let left = generate_analog_stick_data();
-        let right = generate_analog_stick_data();
-
-        buf[analog_sticks::ANALOG_STICK_CONFIG_LEFT.block_x] = left.x;
-        buf[analog_sticks::ANALOG_STICK_CONFIG_LEFT.block_y] = left.y;
-
-        buf[analog_sticks::ANALOG_STICK_CONFIG_RIGHT.block_x] = right.x;
-        buf[analog_sticks::ANALOG_STICK_CONFIG_RIGHT.block_y] = right.y;
+        let left = generate_analog_stick_data(&analog_sticks::CONFIG.left, buf);
+        let right = generate_analog_stick_data(&analog_sticks::CONFIG.right, buf);
 
         AnalogSticks {
             left,
@@ -133,9 +127,12 @@ mod tests {
     }
 
     // TODO 20.02.2018 nviik - This should get config and buf as parameters.
-    fn generate_analog_stick_data() -> AnalogStick {
+    fn generate_analog_stick_data(config: &analog_sticks::AnalogStickConfig, buf: &mut [u8]) -> AnalogStick {
         let x:u8 = rand::thread_rng().gen();
         let y:u8 = rand::thread_rng().gen();
+
+        buf[config.block_x] = x;
+        buf[config.block_y] = y;
 
         AnalogStick {
             x, y
