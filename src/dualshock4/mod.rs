@@ -171,61 +171,45 @@ mod tests {
     }
 
     fn generate_button_data(config: buttons::ButtonConfig, buf: &mut [u8]) -> Button {
-        static mut is_dpad_pressed: bool = false;
-        let is_pressed:bool = rand::thread_rng().gen();
+        static mut IS_DPAD_PRESSED:bool = false;
+        let mut is_pressed:bool = rand::thread_rng().gen();
 
         // special case for dpads, because only one can pressed at the time
         if config.block == 0x05 && config.value < 0x08 {
-            let mut pressed:bool = is_pressed;
             unsafe {
-                if pressed && !is_dpad_pressed {
-                    pressed = true;
-                    is_dpad_pressed = true;
-
-                    if config.value != 0x00 {
-                        buf[config.block] += config.value;
-                    }
-                } else {
-                    pressed = false;
+                if IS_DPAD_PRESSED {
+                    is_pressed = false;
+                } else if is_pressed {
+                    IS_DPAD_PRESSED = true;
                 }
             }
+        }
 
+        if is_pressed && config.value != 0x00 {
+            buf[config.block] += config.value;
+        }
 
-            if !pressed && config.value == 0x00 {
-                buf[config.block] += 0x08;
+        // special case for dpadUp. If it's pressed then it should contain value.
+        if !is_pressed && config.value == 0x00 {
+            buf[config.block] += 0x08;
+        }
+
+        let mut analog_value = None;
+
+        if config.analog_block != None {
+            let analog: u8 = rand::thread_rng().gen();
+            analog_value = Some(analog);
+
+            match config.analog_block {
+                Some(0x08) => buf[0x08] += analog,
+                Some(0x09) => buf[0x09] += analog,
+                _ => ()
             }
+        }
 
-            return Button {
-                pressed: pressed,
-                analog_value: None
-            }
-        } else {
-            let mut analog_value = None;
-
-            if config.analog_block != None {
-                let analog: u8 = rand::thread_rng().gen();
-                analog_value = Some(analog);
-
-                match config.analog_block {
-                    Some(0x08) => buf[0x08] += analog,
-                    Some(0x09) => buf[0x09] += analog,
-                    _ => ()
-                }
-            }
-
-            if !is_pressed {
-                return Button {
-                    pressed: false,
-                    analog_value
-                }
-            } else {
-                buf[config.block] += config.value;
-
-                return Button {
-                    pressed: true,
-                    analog_value
-                }
-            }
+        return Button {
+            pressed: is_pressed,
+            analog_value
         }
     }
 }
