@@ -1,4 +1,5 @@
-use hidapi::{HidApi, HidDevice, HidResult};
+extern crate hidapi;
+use self::hidapi::{HidApi, HidDevice, HidResult};
 
 mod battery_level;
 
@@ -123,7 +124,6 @@ mod tests {
         }
     }
 
-    // TODO 20.02.2018 nviik - This should get config and buf as parameters.
     fn generate_analog_stick_data(config: &analog_sticks::AnalogStickConfig, buf: &mut [u8]) -> AnalogStick {
         let x:u8 = rand::thread_rng().gen();
         let y:u8 = rand::thread_rng().gen();
