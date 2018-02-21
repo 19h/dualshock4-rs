@@ -12,6 +12,9 @@ pub use self::buttons::{Buttons, Button};
 pub mod analog_sticks;
 pub use self::analog_sticks::{AnalogSticks, AnalogStick};
 
+pub mod touchpad;
+pub use self::touchpad::{Touchpad, TouchpadTouch};
+
 const DUALSHOCK4_VENDOR_ID:u16 = 0x54C;
 const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
 
@@ -23,7 +26,8 @@ pub struct Dualshock4Data {
     pub battery_level: u8,
     pub headset: Headset,
     pub analog_sticks: AnalogSticks,
-    pub buttons: Buttons
+    pub buttons: Buttons,
+    pub touchpad: Touchpad
 }
 
 pub type Dualshock4Error = &'static str;
@@ -50,12 +54,14 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
     let headset = headset::decode(buf);
     let buttons = buttons::decode(buf);
     let analog_sticks = analog_sticks::decode(buf);
+    let touchpad = touchpad::decode(buf);
 
     Ok(Dualshock4Data {
         battery_level,
         headset,
         analog_sticks,
-        buttons
+        buttons,
+        touchpad
     })
 }
 
@@ -93,12 +99,14 @@ mod tests {
         let headset = generate_headset_data(&mut buf[..]);
         let analog_sticks = generate_analog_sticks_data(&mut buf[..]);
         let buttons = generate_buttons_data(&mut buf[..]);
+        let touchpad = generate_touchpad_data(&mut buf[..]);
 
         Dualshock4Data {
             battery_level,
             headset,
             analog_sticks,
-            buttons
+            buttons,
+            touchpad
         }
     }
 
@@ -212,6 +220,42 @@ mod tests {
         Button {
             pressed: is_pressed,
             analog_value
+        }
+    }
+
+    fn generate_touchpad_data(buf: &mut [u8]) -> Touchpad {
+        Touchpad {
+            touch_1: generate_touchpad_touch_data(touchpad::CONFIG.touch_1, buf),
+            touch_2: generate_touchpad_touch_data(touchpad::CONFIG.touch_2, buf)
+        }
+    }
+
+    fn generate_touchpad_touch_data(config: touchpad::TouchpadTouchConfig, buf: &mut [u8]) -> TouchpadTouch {
+        const TOUCHPAD_RESOLUTION_WIDTH:u16 = 943;
+        const TOUCHPAD_RESOLUTION_HEIGHT:u16 = 1920;
+
+        let active:bool = rand::thread_rng().gen();
+        let mut x = None;
+        let mut y = None;
+
+        if active {
+            let temp_x:u16 = rand::thread_rng().gen_range(0, TOUCHPAD_RESOLUTION_WIDTH);
+            let temp_y:u16 = rand::thread_rng().gen_range(0, TOUCHPAD_RESOLUTION_HEIGHT);
+
+            buf[config.data_block_a] = (temp_x & 0xff) as u8;
+            buf[config.data_block_b] = (((temp_y | 240) << 4) ^ ((temp_x | 15) >> 8)) as u8;
+            buf[config.data_block_c] = (temp_y >> 4) as u8;
+
+            x = Some(temp_x);
+            y = Some(temp_y);
+        }
+
+        buf[config.active_block] = if active { 0 } else { 255 };
+
+        TouchpadTouch {
+            active,
+            x,
+            y
         }
     }
 }
