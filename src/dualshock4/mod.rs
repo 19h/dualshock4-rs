@@ -77,15 +77,11 @@ mod tests {
     extern crate rand;
     extern crate scroll;
 
-    use test::{Bencher, black_box};
-
     use self::rand::Rng;
+    use self::scroll::Pwrite;
+    use test::{Bencher, black_box};
     use dualshock4::*;
 
-    use self::scroll::Pwrite;
-
-    // TODO 21.02.2018 nviik - Consider to move this benchmark under `bench` directory
-    //   as suggested in here http://seenaburns.com/benchmarking-rust-with-cargo-bench
     #[bench]
     fn bench_test_decode_usb_buf(b: &mut Bencher) {
         b.iter(|| {
