@@ -28,6 +28,11 @@ pub struct Dualshock4Data {
 pub type Dualshock4Error = &'static str;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
+pub fn get_device(api: &HidApi) -> HidDevice {
+    return api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
+        .expect("Failed to open device");
+}
+
 pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
     let mut buf = [0; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
 
@@ -56,11 +61,6 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
         analog_sticks,
         buttons
     });
-}
-
-pub fn get_device(api: &HidApi) -> HidDevice {
-    return api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
-        .expect("Failed to open device");
 }
 
 #[cfg(test)]
@@ -171,26 +171,32 @@ mod tests {
     }
 
     fn generate_button_data(config: buttons::ButtonConfig, buf: &mut [u8]) -> Button {
+        static mut is_dpad_pressed: bool = false;
         let is_pressed:bool = rand::thread_rng().gen();
-//        let mut pressed:bool = false;
 
         // special case for dpads, because only one can pressed at the time
         if config.block == 0x05 && config.value < 0x08 {
-//            if pressed {
-//                pressed = pressed && is_dpad_pressed == &false;
-//                is_dpad_pressed = &mut true;
-//            }
-//
-//            if is_dpad_pressed == &false && config.value == 0x00 {
-//                buf[config.block] += 0x08;
-//            }
+            let mut pressed:bool = is_pressed;
+            unsafe {
+                if pressed && !is_dpad_pressed {
+                    pressed = true;
+                    is_dpad_pressed = true;
 
-            if config.value == 0x00 {
+                    if config.value != 0x00 {
+                        buf[config.block] += config.value;
+                    }
+                } else {
+                    pressed = false;
+                }
+            }
+
+
+            if !pressed && config.value == 0x00 {
                 buf[config.block] += 0x08;
             }
 
             return Button {
-                pressed: false,
+                pressed: pressed,
                 analog_value: None
             }
         } else {
