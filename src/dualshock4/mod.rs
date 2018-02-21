@@ -1,4 +1,4 @@
-use hidapi::{HidApi, HidDevice};
+use hidapi::{HidApi, HidDevice, HidResult};
 
 mod battery_level;
 
@@ -28,10 +28,8 @@ pub struct Dualshock4Data {
 pub type Dualshock4Error = &'static str;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
-// TODO 21.02.2018 nviik - Maybe this should return HidResult so error handling is up to user.
-pub fn get_device(api: &HidApi) -> HidDevice {
+pub fn get_device(api: &HidApi) -> HidResult<HidDevice> {
     api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
-        .expect("Failed to open device")
 }
 
 pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
