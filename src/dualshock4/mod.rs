@@ -21,11 +21,18 @@ pub use self::motion::{Motion};
 const DUALSHOCK4_VENDOR_ID:u16 = 0x54c;
 const DUALSHOCK4_PRODUCT_ID:u16 = 0x5c4;
 
-// TODO 20.02.2018 nviik - Implement reading bluetooth data
 const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
+const DUALSHOCK4_BLUETOOTH_RAW_BUFFER_DATA_LENGTH:usize = 10;
+
+#[derive(PartialEq, Debug)]
+pub enum ConnectionType {
+    Usb,
+    Bluetooth
+}
 
 #[derive(PartialEq, Debug)]
 pub struct Dualshock4Data {
+    pub connection_type: ConnectionType,
     pub battery_level: u8,
     pub headset: Headset,
     pub analog_sticks: AnalogSticks,
@@ -34,7 +41,6 @@ pub struct Dualshock4Data {
     pub motion: Motion
 }
 
-// TODO 22.02.2018 nviik - Actually we don't have anything to throw as an error? If there's an error, panic!
 pub type Dualshock4Error = &'static str;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
@@ -46,15 +52,14 @@ pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
     let mut buf = [0; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
 
     match controller.read(&mut buf[..]) {
-        Ok(DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH) => (),
-        Ok(_res) => return Err("Unexpected data length"),
-        Err(err) => return Err(err)
+        Ok(DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH) => decode_buf(ConnectionType::Usb, &buf),
+        Ok(DUALSHOCK4_BLUETOOTH_RAW_BUFFER_DATA_LENGTH) => decode_buf(ConnectionType::Bluetooth, &buf),
+        Ok(_) => Err("Unexpected data length"),
+        Err(err) => Err(err)
     }
-
-    decode_usb_buf(buf)
 }
 
-fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock4Result<Dualshock4Data> {
+fn decode_buf(connection_type: ConnectionType, buf: &[u8]) -> Dualshock4Result<Dualshock4Data> {
     let battery_level = battery_level::decode(buf);
     let headset = headset::decode(buf);
     let buttons = buttons::decode(buf);
@@ -63,6 +68,7 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
     let motion = motion::decode(buf);
 
     Ok(Dualshock4Data {
+        connection_type,
         battery_level,
         headset,
         analog_sticks,
@@ -83,7 +89,7 @@ mod tests {
     use dualshock4::*;
 
     #[bench]
-    fn bench_test_decode_usb_buf(b: &mut Bencher) {
+    fn bench_test_decode_buf(b: &mut Bencher) {
         b.iter(|| {
             for _i in 1..1000 {
                 black_box(test_decode_usb_buf());
@@ -91,16 +97,17 @@ mod tests {
         });
     }
 
+    // FIXME 23.02.2018 nviik - dpad buttons is randomly failing. Figure out if it's test related issue or not.
     #[test]
     fn test_decode_usb_buf() {
         let mut buf = [0u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
-        let expected = generate_test_data(&mut buf[..]);
-        let decoded = decode_usb_buf(buf).expect("Decoding failed");
+        let expected = generate_test_usb_data(&mut buf[..]);
+        let decoded = decode_buf(ConnectionType::Usb, &buf).expect("Decoding failed");
 
         assert_eq!(expected, decoded);
     }
 
-    fn generate_test_data(buf: &mut[u8]) -> Dualshock4Data {
+    fn generate_test_usb_data(buf: &mut[u8]) -> Dualshock4Data {
         let battery_level = generate_battery_level_data(&mut buf[..]);
         let headset = generate_headset_data(&mut buf[..]);
         let analog_sticks = generate_analog_sticks_data(&mut buf[..]);
@@ -109,6 +116,7 @@ mod tests {
         let motion = generate_motion_data(&mut buf[..]);
 
         Dualshock4Data {
+            connection_type: ConnectionType::Usb,
             battery_level,
             headset,
             analog_sticks,

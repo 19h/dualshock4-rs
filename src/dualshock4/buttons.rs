@@ -1,5 +1,3 @@
-use dualshock4::DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH;
-
 pub struct ButtonConfig {
     pub block: usize,
     pub value: u8,
@@ -199,7 +197,7 @@ pub struct Buttons {
     pub r2: Button
 }
 
-pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Buttons {
+pub fn decode(buf: &[u8]) -> Buttons {
     Buttons {
         x: decode_button(&CONFIG.x, buf),
         square: decode_button(&CONFIG.square, buf),
@@ -226,7 +224,7 @@ pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Buttons {
     }
 }
 
-fn decode_button(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Button {
+fn decode_button(config: &ButtonConfig, buf: &[u8]) -> Button {
     let is_pressed = is_button_pressed(config, buf);
     let analog_value = get_analog_value(config, buf);
 
@@ -236,7 +234,7 @@ fn decode_button(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA
     }
 }
 
-fn is_button_pressed(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> bool {
+fn is_button_pressed(config: &ButtonConfig, buf: &[u8]) -> bool {
     let block = buf[config.block] & config.mask;
 
     // special case for dpadUp
@@ -252,7 +250,7 @@ fn is_button_pressed(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_
     (block & config.value) == config.value
 }
 
-fn get_analog_value(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Option<u8> {
+fn get_analog_value(config: &ButtonConfig, buf: &[u8]) -> Option<u8> {
     match config.analog_block {
         Some(block) => Some(buf[block]),
         None => None

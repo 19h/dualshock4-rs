@@ -1,5 +1,3 @@
-use dualshock4::DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH;
-
 pub const DATA_BLOCK_HEADSET:usize = 0x1e;
 
 pub const HEADSET_MASK_NONE:u8 = 0x1b;
@@ -14,7 +12,7 @@ pub enum Headset {
     Unknown
 }
 
-pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Headset {
+pub fn decode(buf: &[u8]) -> Headset {
     let mask = buf[DATA_BLOCK_HEADSET];
 
     return match mask {
