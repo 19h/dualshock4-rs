@@ -5,17 +5,20 @@ pub struct AnalogStickConfig {
     pub block_y: usize
 }
 
-// TODO 21.02.2018 nviik - Add struct `AnalogStickConfig` which contains configurations
-//   for both left and right analog sticks. Use and define config in `CONFIG` property.
+pub struct AnalogSticksConfig {
+    pub left: AnalogStickConfig,
+    pub right: AnalogStickConfig
+}
 
-pub const ANALOG_STICK_CONFIG_LEFT: AnalogStickConfig = AnalogStickConfig {
-    block_x: 0x01,
-    block_y: 0x02
-};
-
-pub const ANALOG_STICK_CONFIG_RIGHT: AnalogStickConfig = AnalogStickConfig {
-    block_x: 0x03,
-    block_y: 0x04
+pub const CONFIG:AnalogSticksConfig = AnalogSticksConfig {
+    left: AnalogStickConfig {
+        block_x: 0x01,
+        block_y: 0x02
+    },
+    right: AnalogStickConfig {
+        block_x: 0x03,
+        block_y: 0x04
+    }
 };
 
 #[derive(PartialEq, Debug)]
@@ -31,18 +34,18 @@ pub struct AnalogSticks {
 }
 
 pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> AnalogSticks {
-    let left = decode_analog_stick(ANALOG_STICK_CONFIG_LEFT, buf);
-    let right = decode_analog_stick(ANALOG_STICK_CONFIG_RIGHT, buf);
+    let left = decode_analog_stick(&CONFIG.left, buf);
+    let right = decode_analog_stick(&CONFIG.right, buf);
 
-    return AnalogSticks {
+    AnalogSticks {
         left,
         right
     }
 }
 
-fn decode_analog_stick(config: AnalogStickConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> AnalogStick {
-    return AnalogStick {
+fn decode_analog_stick(config: &AnalogStickConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> AnalogStick {
+    AnalogStick {
         x: buf[config.block_x],
         y: buf[config.block_y]
-    };
+    }
 }

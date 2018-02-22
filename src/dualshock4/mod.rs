@@ -31,8 +31,8 @@ pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
 // TODO 21.02.2018 nviik - Maybe this should return HidResult so error handling is up to user.
 pub fn get_device(api: &HidApi) -> HidDevice {
-    return api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
-        .expect("Failed to open device");
+    api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
+        .expect("Failed to open device")
 }
 
 pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
@@ -44,11 +44,7 @@ pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
         Err(err) => return Err(err)
     }
 
-    // TODO 20.02.2018 nviik - should be `return decode_usb_buf(buf)`
-    match decode_usb_buf(buf) {
-        Ok(data) => return Ok(data),
-        Err(err) => return Err(err)
-    }
+    decode_usb_buf(buf)
 }
 
 fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock4Result<Dualshock4Data> {
@@ -57,12 +53,12 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
     let buttons = buttons::decode(buf);
     let analog_sticks = analog_sticks::decode(buf);
 
-    return Ok(Dualshock4Data {
+    Ok(Dualshock4Data {
         battery_level,
         headset,
         analog_sticks,
         buttons
-    });
+    })
 }
 
 #[cfg(test)]
@@ -88,7 +84,7 @@ mod tests {
         let analog_sticks = generate_analog_sticks_data(&mut buf[..]);
         let buttons = generate_buttons_data(&mut buf[..]);
 
-        return Dualshock4Data {
+        Dualshock4Data {
             battery_level,
             headset,
             analog_sticks,
@@ -112,42 +108,39 @@ mod tests {
             _ => 0
         };
 
-        return match value {
+        match value {
             0 => Headset::None,
             1 => Headset::Headphones,
             2 => Headset::HeadsetWithMic,
             _ => Headset::Unknown
-        };
+        }
     }
 
     fn generate_analog_sticks_data(buf: &mut [u8]) -> AnalogSticks {
-        let left = generate_analog_stick_data();
-        let right = generate_analog_stick_data();
+        let left = generate_analog_stick_data(&analog_sticks::CONFIG.left, buf);
+        let right = generate_analog_stick_data(&analog_sticks::CONFIG.right, buf);
 
-        buf[analog_sticks::ANALOG_STICK_CONFIG_LEFT.block_x] = left.x;
-        buf[analog_sticks::ANALOG_STICK_CONFIG_LEFT.block_y] = left.y;
-
-        buf[analog_sticks::ANALOG_STICK_CONFIG_RIGHT.block_x] = right.x;
-        buf[analog_sticks::ANALOG_STICK_CONFIG_RIGHT.block_y] = right.y;
-
-        return AnalogSticks {
+        AnalogSticks {
             left,
             right
         }
     }
 
     // TODO 20.02.2018 nviik - This should get config and buf as parameters.
-    fn generate_analog_stick_data() -> AnalogStick {
+    fn generate_analog_stick_data(config: &analog_sticks::AnalogStickConfig, buf: &mut [u8]) -> AnalogStick {
         let x:u8 = rand::thread_rng().gen();
         let y:u8 = rand::thread_rng().gen();
 
-        return AnalogStick {
+        buf[config.block_x] = x;
+        buf[config.block_y] = y;
+
+        AnalogStick {
             x, y
         }
     }
 
     fn generate_buttons_data(buf: &mut [u8]) -> Buttons {
-        return Buttons {
+        Buttons {
             x: generate_button_data(buttons::BUTTONS_CONFIG.x, &mut buf[..]),
             square: generate_button_data(buttons::BUTTONS_CONFIG.square, &mut buf[..]),
             triangle: generate_button_data(buttons::BUTTONS_CONFIG.triangle, &mut buf[..]),
@@ -207,7 +200,7 @@ mod tests {
             buf[block] += analog;
         }
 
-        return Button {
+        Button {
             pressed: is_pressed,
             analog_value
         }
