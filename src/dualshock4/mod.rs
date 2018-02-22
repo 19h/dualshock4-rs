@@ -18,8 +18,8 @@ pub use self::touchpad::{Touchpad, TouchpadTouch};
 pub mod motion;
 pub use self::motion::{Motion};
 
-const DUALSHOCK4_VENDOR_ID:u16 = 0x54C;
-const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
+const DUALSHOCK4_VENDOR_ID:u16 = 0x54c;
+const DUALSHOCK4_PRODUCT_ID:u16 = 0x5c4;
 
 // TODO 20.02.2018 nviik - Implement reading bluetooth data
 const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
@@ -95,7 +95,7 @@ mod tests {
     fn test_decode_usb_buf() {
         let mut buf = [0u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
         let expected = generate_test_data(&mut buf[..]);
-        let decoded = decode_usb_buf(buf).expect("Fails");
+        let decoded = decode_usb_buf(buf).expect("Decoding failed");
 
         assert_eq!(expected, decoded);
     }
@@ -252,14 +252,14 @@ mod tests {
             let temp_y:u16 = rand::thread_rng().gen_range(0, TOUCHPAD_RESOLUTION_HEIGHT);
 
             buf[config.data_block_a] = (temp_x & 0xff) as u8;
-            buf[config.data_block_b] = (((temp_y | 240) << 4) ^ ((temp_x | 15) >> 8)) as u8;
+            buf[config.data_block_b] = (((temp_y | 0xf0) << 4) ^ ((temp_x | 0x0f) >> 8)) as u8;
             buf[config.data_block_c] = (temp_y >> 4) as u8;
 
             x = Some(temp_x);
             y = Some(temp_y);
         }
 
-        buf[config.active_block] = if active { 0 } else { 255 };
+        buf[config.active_block] = if active { 0x00 } else { 0xff };
 
         TouchpadTouch {
             active,

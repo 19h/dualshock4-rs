@@ -240,8 +240,8 @@ fn is_button_pressed(config: &ButtonConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_
     let block = buf[config.block] & config.mask;
 
     // special case for dpadUp
-    if config.block == 0x05 && config.value == 0x00 {
-        return block == 0
+    if config.block == 0x05 && config.value == CONFIG.dpad_up.value {
+        return block == CONFIG.dpad_up.value
     }
 
     // special case for dpads, only one can be pressed at time

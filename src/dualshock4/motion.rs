@@ -13,12 +13,12 @@ pub struct MotionConfig {
 }
 
 pub const CONFIG:MotionConfig = MotionConfig {
-    motion_z: 13,
-    motion_x: 15,
-    motion_y: 17,
-    gyro_x: 19,
-    gyro_y: 21,
-    gyro_z: 23
+    motion_z: 0x0d,
+    motion_x: 0x0f,
+    motion_y: 0x11,
+    gyro_x: 0x13,
+    gyro_y: 0x15,
+    gyro_z: 0x17
 };
 
 #[derive(PartialEq, Debug)]

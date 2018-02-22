@@ -1,6 +1,6 @@
 use dualshock4::DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH;
 
-pub const DATA_BLOCK_HEADSET:usize = 30;
+pub const DATA_BLOCK_HEADSET:usize = 0x1e;
 
 pub const HEADSET_MASK_NONE:u8 = 0x1b;
 pub const HEADSET_MASK_HEADPHONES:u8 = 0x3b;
