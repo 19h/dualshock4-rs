@@ -193,6 +193,7 @@ mod tests {
 
     fn generate_button_data(config: buttons::ButtonConfig, buf: &mut [u8]) -> Button {
         static mut IS_DPAD_PRESSED:bool = false;
+        let is_dpad_up_config = config.value == buttons::CONFIG.dpad_up.value;
         let mut is_pressed:bool = rand::thread_rng().gen();
 
         // special case for dpads, because only one can pressed at the time.
@@ -206,13 +207,13 @@ mod tests {
             }
         }
 
-        if is_pressed && config.value != 0x00 {
-            buf[config.block] += config.value;
+        // special case for dpadUp. If it's pressed then it should contain value.
+        if !is_pressed && is_dpad_up_config {
+            buf[config.block] += 0x08;
         }
 
-        // special case for dpadUp. If it's pressed then it should contain value.
-        if !is_pressed && config.value == 0x00 {
-            buf[config.block] += 0x08;
+        if is_pressed && !is_dpad_up_config {
+            buf[config.block] += config.value;
         }
 
         let mut analog_value = None;
