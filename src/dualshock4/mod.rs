@@ -1,4 +1,7 @@
-use hidapi::{HidApi, HidDevice};
+extern crate hidapi;
+use self::hidapi::{HidApi, HidDevice, HidResult};
+
+mod battery_level;
 
 pub mod headset;
 pub use self::headset::{Headset};
@@ -15,9 +18,6 @@ const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
 // TODO 20.02.2018 nviik - Implement reading bluetooth data
 const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
 
-// TODO 21.02.2018 nviik - Decoding battery level should be in own file `battery.rs`
-const DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL:usize = 0x12;
-
 #[derive(PartialEq, Debug)]
 pub struct Dualshock4Data {
     pub battery_level: u8,
@@ -29,10 +29,8 @@ pub struct Dualshock4Data {
 pub type Dualshock4Error = &'static str;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
-// TODO 21.02.2018 nviik - Maybe this should return HidResult so error handling is up to user.
-pub fn get_device(api: &HidApi) -> HidDevice {
+pub fn get_device(api: &HidApi) -> HidResult<HidDevice> {
     api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
-        .expect("Failed to open device")
 }
 
 pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
@@ -48,7 +46,7 @@ pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
 }
 
 fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock4Result<Dualshock4Data> {
-    let battery_level = buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL];
+    let battery_level = battery_level::decode(buf);
     let headset = headset::decode(buf);
     let buttons = buttons::decode(buf);
     let analog_sticks = analog_sticks::decode(buf);
@@ -65,10 +63,22 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
 mod tests {
     extern crate rand;
 
+    use test::{Bencher, black_box};
+
     use self::rand::Rng;
     use dualshock4::*;
 
-    // TODO 21.02.2018 nviik - Figure out how to run this test like 1000 times.
+    // TODO 21.02.2018 nviik - Consider to move this benchmark under `bench` directory
+    //   as suggested in here http://seenaburns.com/benchmarking-rust-with-cargo-bench
+    #[bench]
+    fn bench_test_decode_usb_buf(b: &mut Bencher) {
+        b.iter(|| {
+            for _i in 1..1000 {
+                black_box(test_decode_usb_buf());
+            }
+        });
+    }
+
     #[test]
     fn test_decode_usb_buf() {
         let mut buf = [0u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
@@ -94,7 +104,7 @@ mod tests {
 
     fn generate_battery_level_data(buf: &mut[u8]) -> u8 {
         let value:u8 = rand::thread_rng().gen_range(0, 22);
-        buf[DUALSHOCK4_DATA_BLOCK_BATTERY_LEVEL] = value;
+        buf[battery_level::DATA_BLOCK_BATTERY_LEVEL] = value;
         return value;
     }
 
@@ -126,7 +136,6 @@ mod tests {
         }
     }
 
-    // TODO 20.02.2018 nviik - This should get config and buf as parameters.
     fn generate_analog_stick_data(config: &analog_sticks::AnalogStickConfig, buf: &mut [u8]) -> AnalogStick {
         let x:u8 = rand::thread_rng().gen();
         let y:u8 = rand::thread_rng().gen();
@@ -141,28 +150,28 @@ mod tests {
 
     fn generate_buttons_data(buf: &mut [u8]) -> Buttons {
         Buttons {
-            x: generate_button_data(buttons::BUTTONS_CONFIG.x, &mut buf[..]),
-            square: generate_button_data(buttons::BUTTONS_CONFIG.square, &mut buf[..]),
-            triangle: generate_button_data(buttons::BUTTONS_CONFIG.triangle, &mut buf[..]),
-            circle: generate_button_data(buttons::BUTTONS_CONFIG.circle,&mut buf[..]),
-            dpad_up: generate_button_data(buttons::BUTTONS_CONFIG.dpad_up,&mut buf[..]),
-            dpad_up_right: generate_button_data(buttons::BUTTONS_CONFIG.dpad_up_right, &mut buf[..]),
-            dpad_right: generate_button_data(buttons::BUTTONS_CONFIG.dpad_right, &mut buf[..]),
-            dpad_down_right: generate_button_data(buttons::BUTTONS_CONFIG.dpad_down_right, &mut buf[..]),
-            dpad_down: generate_button_data(buttons::BUTTONS_CONFIG.dpad_down, &mut buf[..]),
-            dpad_down_left: generate_button_data(buttons::BUTTONS_CONFIG.dpad_down_left, &mut buf[..]),
-            dpad_left: generate_button_data(buttons::BUTTONS_CONFIG.dpad_left, &mut buf[..]),
-            dpad_up_left: generate_button_data(buttons::BUTTONS_CONFIG.dpad_up_left, &mut buf[..]),
-            share: generate_button_data(buttons::BUTTONS_CONFIG.share, &mut buf[..]),
-            options: generate_button_data(buttons::BUTTONS_CONFIG.options, &mut buf[..]),
-            psx: generate_button_data(buttons::BUTTONS_CONFIG.psx, &mut buf[..]),
-            touchpad: generate_button_data(buttons::BUTTONS_CONFIG.touchpad, &mut buf[..]),
-            l1: generate_button_data(buttons::BUTTONS_CONFIG.l1, &mut buf[..]),
-            r1: generate_button_data(buttons::BUTTONS_CONFIG.r1, &mut buf[..]),
-            left_stick: generate_button_data(buttons::BUTTONS_CONFIG.left_stick, &mut buf[..]),
-            right_stick: generate_button_data(buttons::BUTTONS_CONFIG.right_stick, &mut buf[..]),
-            l2: generate_button_data(buttons::BUTTONS_CONFIG.l2, &mut buf[..]),
-            r2: generate_button_data(buttons::BUTTONS_CONFIG.r2, &mut buf[..])
+            x: generate_button_data(buttons::CONFIG.x, &mut buf[..]),
+            square: generate_button_data(buttons::CONFIG.square, &mut buf[..]),
+            triangle: generate_button_data(buttons::CONFIG.triangle, &mut buf[..]),
+            circle: generate_button_data(buttons::CONFIG.circle, &mut buf[..]),
+            dpad_up: generate_button_data(buttons::CONFIG.dpad_up, &mut buf[..]),
+            dpad_up_right: generate_button_data(buttons::CONFIG.dpad_up_right, &mut buf[..]),
+            dpad_right: generate_button_data(buttons::CONFIG.dpad_right, &mut buf[..]),
+            dpad_down_right: generate_button_data(buttons::CONFIG.dpad_down_right, &mut buf[..]),
+            dpad_down: generate_button_data(buttons::CONFIG.dpad_down, &mut buf[..]),
+            dpad_down_left: generate_button_data(buttons::CONFIG.dpad_down_left, &mut buf[..]),
+            dpad_left: generate_button_data(buttons::CONFIG.dpad_left, &mut buf[..]),
+            dpad_up_left: generate_button_data(buttons::CONFIG.dpad_up_left, &mut buf[..]),
+            share: generate_button_data(buttons::CONFIG.share, &mut buf[..]),
+            options: generate_button_data(buttons::CONFIG.options, &mut buf[..]),
+            psx: generate_button_data(buttons::CONFIG.psx, &mut buf[..]),
+            touchpad: generate_button_data(buttons::CONFIG.touchpad, &mut buf[..]),
+            l1: generate_button_data(buttons::CONFIG.l1, &mut buf[..]),
+            r1: generate_button_data(buttons::CONFIG.r1, &mut buf[..]),
+            left_stick: generate_button_data(buttons::CONFIG.left_stick, &mut buf[..]),
+            right_stick: generate_button_data(buttons::CONFIG.right_stick, &mut buf[..]),
+            l2: generate_button_data(buttons::CONFIG.l2, &mut buf[..]),
+            r2: generate_button_data(buttons::CONFIG.r2, &mut buf[..])
         }
     }
 
