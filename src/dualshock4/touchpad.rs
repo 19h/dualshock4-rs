@@ -49,31 +49,34 @@ pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Touchpad {
 
 fn decode_touch(config: &TouchpadTouchConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> TouchpadTouch {
     let active = buf[config.active_block] < 128;
-    let mut x = None;
-    let mut y = None;
 
-    if active {
-        x = Some(decode_touch_x(config, buf));
-        y = Some(decode_touch_y(config, buf));
-    }
+    let x = if active {
+        Some(decode_touch_x(config, buf))
+    } else {
+        None
+    };
+
+    let y = if active {
+        Some(decode_touch_y(config, buf))
+    } else {
+        None
+    };
 
     TouchpadTouch {
-        active,
-        x,
-        y
+        active, x, y
     }
 }
 
 fn decode_touch_x(config: &TouchpadTouchConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> u16 {
-    let block_a = buf[config.data_block_a] as u16;
-    let block_b = buf[config.data_block_b] as u16;
+    let block_a = u16::from(buf[config.data_block_a]);
+    let block_b = u16::from(buf[config.data_block_b]);
 
     ((block_b & 15) << 8) | block_a
 }
 
 fn decode_touch_y(config: &TouchpadTouchConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> u16 {
-    let block_b = buf[config.data_block_b] as u16;
-    let block_c = buf[config.data_block_c] as u16;
+    let block_b = u16::from(buf[config.data_block_b]);
+    let block_c = u16::from(buf[config.data_block_c]);
 
     (block_c << 4) | ((block_b & 240) >> 4)
 }

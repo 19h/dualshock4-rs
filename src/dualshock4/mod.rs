@@ -15,6 +15,9 @@ pub use self::analog_sticks::{AnalogSticks, AnalogStick};
 pub mod touchpad;
 pub use self::touchpad::{Touchpad, TouchpadTouch};
 
+pub mod motion;
+pub use self::motion::{Motion};
+
 const DUALSHOCK4_VENDOR_ID:u16 = 0x54C;
 const DUALSHOCK4_PRODUCT_ID:u16 = 0x5C4;
 
@@ -27,9 +30,11 @@ pub struct Dualshock4Data {
     pub headset: Headset,
     pub analog_sticks: AnalogSticks,
     pub buttons: Buttons,
-    pub touchpad: Touchpad
+    pub touchpad: Touchpad,
+    pub motion: Motion
 }
 
+// TODO 22.02.2018 nviik - Actually we don't have anything to throw as an error? If there's an error, panic!
 pub type Dualshock4Error = &'static str;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
@@ -55,27 +60,28 @@ fn decode_usb_buf(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> Dualshock
     let buttons = buttons::decode(buf);
     let analog_sticks = analog_sticks::decode(buf);
     let touchpad = touchpad::decode(buf);
+    let motion = motion::decode(buf);
 
     Ok(Dualshock4Data {
         battery_level,
         headset,
         analog_sticks,
         buttons,
-        touchpad
+        touchpad,
+        motion
     })
 }
 
 #[cfg(test)]
 mod tests {
     extern crate rand;
-
-    use test::{Bencher, black_box};
+    extern crate scroll;
 
     use self::rand::Rng;
+    use self::scroll::Pwrite;
+    use test::{Bencher, black_box};
     use dualshock4::*;
 
-    // TODO 21.02.2018 nviik - Consider to move this benchmark under `bench` directory
-    //   as suggested in here http://seenaburns.com/benchmarking-rust-with-cargo-bench
     #[bench]
     fn bench_test_decode_usb_buf(b: &mut Bencher) {
         b.iter(|| {
@@ -100,13 +106,15 @@ mod tests {
         let analog_sticks = generate_analog_sticks_data(&mut buf[..]);
         let buttons = generate_buttons_data(&mut buf[..]);
         let touchpad = generate_touchpad_data(&mut buf[..]);
+        let motion = generate_motion_data(&mut buf[..]);
 
         Dualshock4Data {
             battery_level,
             headset,
             analog_sticks,
             buttons,
-            touchpad
+            touchpad,
+            motion
         }
     }
 
@@ -256,6 +264,27 @@ mod tests {
             active,
             x,
             y
+        }
+    }
+
+    fn generate_motion_data(buf: &mut[u8]) -> Motion {
+        let x:i16 = rand::thread_rng().gen();
+        let y:i16 = rand::thread_rng().gen();
+        let z:i16 = rand::thread_rng().gen();
+        let roll:i16 = rand::thread_rng().gen();
+        let yaw:i16 = rand::thread_rng().gen();
+        let pitch:i16 = rand::thread_rng().gen();
+
+        buf.pwrite_with::<i16>(x, motion::CONFIG.motion_x, scroll::BE).unwrap();
+        buf.pwrite_with::<i16>(y, motion::CONFIG.motion_y, scroll::BE).unwrap();
+        buf.pwrite_with::<i16>(z, motion::CONFIG.motion_z, scroll::BE).unwrap();
+        buf.pwrite_with::<i16>(roll, motion::CONFIG.gyro_x, scroll::BE).unwrap();
+        buf.pwrite_with::<i16>(yaw, motion::CONFIG.gyro_y, scroll::BE).unwrap();
+        buf.pwrite_with::<i16>(pitch, motion::CONFIG.gyro_z, scroll::BE).unwrap();
+
+        Motion {
+            x, y, z,
+            roll, yaw, pitch
         }
     }
 }
