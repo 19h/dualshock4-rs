@@ -10,6 +10,6 @@ This library uses nightly version of rust.
 
 # Rust clippy
 
-To run clippy: `cargo +nightly clippy`
+To run clippy: `cargo +nightly build --features "clippy"`
 
 https://github.com/rust-lang-nursery/rust-clippy
