@@ -1,11 +1,15 @@
 [package]
 name = "dualshock4"
-version = "0.4.1"
+version = "0.1.0"
 authors = ["Niko Viik <Niko.Viik@Wunderdog.fi>"]
-description = "dualshock4 controller using hidapi"
-keywords = ["dualshock4", "dualshock"]
+description = "Read Dualshock4 controller data by using hidapi"
+keywords = ["dualshock", "dualshock4", "ds4", "playstation"]
+categories = ["hardware-support"]
 license = "MIT"
-repository = "https://bitbucket.org/unessa/dualshock4-rust"
+documentation = "https://bitbucket.org/unessa/dualshock4-rust"
+homepage = "https://bitbucket.org/unessa/dualshock4-rust"
+repository = "https://bitbucket.org/unessa/dualshock4-rust.git"
+readme="README.md"
 
 [dependencies]
 hidapi = "0.4.1"

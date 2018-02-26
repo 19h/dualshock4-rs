@@ -2,7 +2,7 @@ image: rustlang/rust:nightly
 
 pipelines:
   branches:
-    master:
+    all:
       - step:
           script:
             - echo "Updates to rustup"                ; rustup self update
