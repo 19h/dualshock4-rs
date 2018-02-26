@@ -1,5 +1,3 @@
-use dualshock4::DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH;
-
 pub struct AnalogStickConfig {
     pub block_x: usize,
     pub block_y: usize
@@ -33,7 +31,7 @@ pub struct AnalogSticks {
     pub right: AnalogStick
 }
 
-pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> AnalogSticks {
+pub fn decode(buf: &[u8]) -> AnalogSticks {
     let left = decode_analog_stick(&CONFIG.left, buf);
     let right = decode_analog_stick(&CONFIG.right, buf);
 
@@ -43,7 +41,7 @@ pub fn decode(buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> AnalogSticks 
     }
 }
 
-fn decode_analog_stick(config: &AnalogStickConfig, buf: [u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH]) -> AnalogStick {
+fn decode_analog_stick(config: &AnalogStickConfig, buf: &[u8]) -> AnalogStick {
     AnalogStick {
         x: buf[config.block_x],
         y: buf[config.block_y]
