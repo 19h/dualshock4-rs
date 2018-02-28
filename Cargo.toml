@@ -14,7 +14,7 @@ readme="README.md"
 [dependencies]
 hidapi = "0.4.1"
 scroll = "0.9.0"
-clippy = { version = "*", optional = true }
+clippy = { version = "0.0.187", optional = true }
 
 [dev-dependencies]
 rand = "0.4"
