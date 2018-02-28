@@ -17,4 +17,4 @@ pipelines:
             - echo "Updates to rustup"            ; rustup self update
             - echo "Update Rust toolchain"        ; rustup update
             - echo "install libusb dependency"    ; apt-get update && apt-get install -y libusb-1.0-0-dev
-            - echo "publishing to crates.io"      ; cargo login $$CRATES_IO_TOKEN && cargo publish --verbose
+            - echo "publishing to crates.io"      ; cargo login $CRATES_IO_TOKEN && cargo publish --verbose
