@@ -4,7 +4,7 @@ This library is used to read _dualshock4_ controller data.
 
 Dualshock4 event data documentation: http://www.psdevwiki.com/ps4/DS4-USB
 
-# Usage / Example
+# Usage
 
 Connect dualshock4 controller to your computer by using USB or bluetooth connection.
 
