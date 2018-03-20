@@ -19,7 +19,10 @@ pub mod motion;
 pub use self::motion::{Motion};
 
 const DUALSHOCK4_VENDOR_ID:u16 = 0x54c;
-const DUALSHOCK4_PRODUCT_ID:u16 = 0x5c4;
+
+// Dualshock4 product ID changed after playstation update 5.50
+const DUALSHOCK4_PRODUCT_ID_NEW:u16 = 0x9cc;
+const DUALSHOCK4_PRODUCT_ID_OLD:u16 = 0x5c4;
 
 const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
 const DUALSHOCK4_BLUETOOTH_RAW_BUFFER_DATA_LENGTH:usize = 10;
@@ -44,10 +47,17 @@ pub struct Dualshock4Data {
 pub type Dualshock4Error = &'static str;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
+/// Open Dualshock4 device.
 pub fn get_device(api: &HidApi) -> HidResult<HidDevice> {
-    api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID)
+    api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID_NEW)
 }
 
+/// Open Dualshock4 device (before playstation 5.50 update).
+pub fn get_device_old(api: &HidApi) -> HidResult<HidDevice> {
+    api.open(DUALSHOCK4_VENDOR_ID, DUALSHOCK4_PRODUCT_ID_OLD)
+}
+
+/// Read and decode dualshock4 device data.
 pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
     let mut buf = [0; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
 
