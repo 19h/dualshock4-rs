@@ -1,6 +1,6 @@
 [package]
 name = "dualshock4"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Niko Viik <Niko.Viik@Wunderdog.fi>"]
 description = "Read Dualshock4 controller data by using hidapi"
 keywords = ["dualshock", "dualshock4", "ds4", "playstation"]

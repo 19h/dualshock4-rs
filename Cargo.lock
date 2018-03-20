@@ -63,7 +63,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "dualshock4"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clippy 0.0.187 (registry+https://github.com/rust-lang/crates.io-index)",
  "hidapi 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
