@@ -2,7 +2,7 @@ pub struct ButtonConfig {
     pub block: usize,
     pub value: u8,
     pub mask: u8,
-    pub analog_block: Option<usize>
+    pub analog_block: Option<usize>,
 }
 
 pub struct ButtonsConfig {
@@ -27,148 +27,148 @@ pub struct ButtonsConfig {
     pub left_stick: ButtonConfig,
     pub right_stick: ButtonConfig,
     pub l2: ButtonConfig,
-    pub r2: ButtonConfig
+    pub r2: ButtonConfig,
 }
 
-pub const CONFIG:ButtonsConfig = ButtonsConfig {
+pub const CONFIG: ButtonsConfig = ButtonsConfig {
     x: ButtonConfig {
         block: 0x05,
         value: 0x20,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     square: ButtonConfig {
         block: 0x05,
         value: 0x10,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     triangle: ButtonConfig {
         block: 0x05,
         value: 0x80,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     circle: ButtonConfig {
         block: 0x05,
         value: 0x40,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     dpad_up: ButtonConfig {
         block: 0x05,
         value: 0x00,
         mask: 0xf,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     dpad_up_right: ButtonConfig {
         block: 0x05,
         value: 0x01,
         mask: 0xf,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     dpad_right: ButtonConfig {
         block: 0x05,
         value: 0x02,
         mask: 0xf,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     dpad_down_right: ButtonConfig {
         block: 0x05,
         value: 0x03,
         mask: 0xf,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     dpad_down: ButtonConfig {
         block: 0x05,
         value: 0x04,
         mask: 0xf,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     dpad_down_left: ButtonConfig {
         block: 0x05,
         value: 0x05,
         mask: 0xf,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     dpad_left: ButtonConfig {
         block: 0x05,
         value: 0x06,
         mask: 0xf,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     dpad_up_left: ButtonConfig {
         block: 0x05,
         value: 0x07,
         mask: 0xf,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     share: ButtonConfig {
         block: 0x06,
         value: 0x10,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     options: ButtonConfig {
         block: 0x06,
         value: 0x20,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     psx: ButtonConfig {
         block: 0x07,
         value: 0x01,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     touchpad: ButtonConfig {
         block: 0x07,
         value: 0x02,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     l1: ButtonConfig {
         block: 0x06,
         value: 0x01,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     r1: ButtonConfig {
         block: 0x06,
         value: 0x02,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     left_stick: ButtonConfig {
         block: 0x06,
         value: 0x40,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     right_stick: ButtonConfig {
         block: 0x06,
         value: 0x80,
         mask: 0xff,
-        analog_block: Option::None
+        analog_block: Option::None,
     },
     l2: ButtonConfig {
         block: 0x06,
         value: 0x04,
         mask: 0xff,
-        analog_block: Some(0x08)
+        analog_block: Some(0x08),
     },
     r2: ButtonConfig {
         block: 0x06,
         value: 0x08,
         mask: 0xff,
-        analog_block: Some(0x09)
-    }
+        analog_block: Some(0x09),
+    },
 };
 
 #[derive(PartialEq, Debug)]
 pub struct Button {
     pub pressed: bool,
-    pub analog_value: Option<u8>
+    pub analog_value: Option<u8>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -194,7 +194,7 @@ pub struct Buttons {
     pub left_stick: Button,
     pub right_stick: Button,
     pub l2: Button,
-    pub r2: Button
+    pub r2: Button,
 }
 
 pub fn decode(buf: &[u8]) -> Buttons {
@@ -220,7 +220,7 @@ pub fn decode(buf: &[u8]) -> Buttons {
         left_stick: decode_button(&CONFIG.left_stick, buf),
         right_stick: decode_button(&CONFIG.right_stick, buf),
         l2: decode_button(&CONFIG.l2, buf),
-        r2: decode_button(&CONFIG.r2, buf)
+        r2: decode_button(&CONFIG.r2, buf),
     }
 }
 
@@ -230,7 +230,7 @@ fn decode_button(config: &ButtonConfig, buf: &[u8]) -> Button {
 
     Button {
         pressed: is_pressed,
-        analog_value
+        analog_value,
     }
 }
 
@@ -239,12 +239,12 @@ fn is_button_pressed(config: &ButtonConfig, buf: &[u8]) -> bool {
 
     // special case for dpadUp
     if config.block == 0x05 && config.value == CONFIG.dpad_up.value {
-        return block == CONFIG.dpad_up.value
+        return block == CONFIG.dpad_up.value;
     }
 
     // special case for dpads, only one can be pressed at time
     if config.block == 0x05 && block < 0x08 {
-        return block == config.value
+        return block == config.value;
     }
 
     (block & config.value) == config.value

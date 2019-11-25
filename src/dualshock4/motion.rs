@@ -1,32 +1,33 @@
 extern crate scroll;
+
 use self::scroll::Pread;
 
 pub struct MotionConfig {
-    pub motion_x:usize,
-    pub motion_y:usize,
-    pub motion_z:usize,
-    pub gyro_x:usize,
-    pub gyro_y:usize,
-    pub gyro_z:usize
+    pub motion_x: usize,
+    pub motion_y: usize,
+    pub motion_z: usize,
+    pub gyro_x: usize,
+    pub gyro_y: usize,
+    pub gyro_z: usize,
 }
 
-pub const CONFIG:MotionConfig = MotionConfig {
+pub const CONFIG: MotionConfig = MotionConfig {
     motion_z: 0x0d,
     motion_x: 0x0f,
     motion_y: 0x11,
     gyro_x: 0x13,
     gyro_y: 0x15,
-    gyro_z: 0x17
+    gyro_z: 0x17,
 };
 
 #[derive(PartialEq, Debug)]
 pub struct Motion {
-    pub x:i16,
-    pub y:i16,
-    pub z:i16,
-    pub roll:i16,
-    pub yaw:i16,
-    pub pitch:i16
+    pub x: i16,
+    pub y: i16,
+    pub z: i16,
+    pub roll: i16,
+    pub yaw: i16,
+    pub pitch: i16,
 }
 
 pub fn decode(buf: &[u8]) -> Motion {
@@ -38,7 +39,11 @@ pub fn decode(buf: &[u8]) -> Motion {
     let pitch = buf.pread_with::<i16>(CONFIG.gyro_z, scroll::BE).unwrap();
 
     Motion {
-        x, y, z,
-        roll, yaw, pitch
+        x,
+        y,
+        z,
+        roll,
+        yaw,
+        pitch,
     }
 }

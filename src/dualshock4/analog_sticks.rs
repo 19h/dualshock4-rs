@@ -1,34 +1,34 @@
 pub struct AnalogStickConfig {
     pub block_x: usize,
-    pub block_y: usize
+    pub block_y: usize,
 }
 
 pub struct AnalogSticksConfig {
     pub left: AnalogStickConfig,
-    pub right: AnalogStickConfig
+    pub right: AnalogStickConfig,
 }
 
-pub const CONFIG:AnalogSticksConfig = AnalogSticksConfig {
+pub const CONFIG: AnalogSticksConfig = AnalogSticksConfig {
     left: AnalogStickConfig {
         block_x: 0x01,
-        block_y: 0x02
+        block_y: 0x02,
     },
     right: AnalogStickConfig {
         block_x: 0x03,
-        block_y: 0x04
-    }
+        block_y: 0x04,
+    },
 };
 
 #[derive(PartialEq, Debug)]
 pub struct AnalogStick {
     pub x: u8,
-    pub y: u8
+    pub y: u8,
 }
 
 #[derive(PartialEq, Debug)]
 pub struct AnalogSticks {
     pub left: AnalogStick,
-    pub right: AnalogStick
+    pub right: AnalogStick,
 }
 
 pub fn decode(buf: &[u8]) -> AnalogSticks {
@@ -37,13 +37,13 @@ pub fn decode(buf: &[u8]) -> AnalogSticks {
 
     AnalogSticks {
         left,
-        right
+        right,
     }
 }
 
 fn decode_analog_stick(config: &AnalogStickConfig, buf: &[u8]) -> AnalogStick {
     AnalogStick {
         x: buf[config.block_x],
-        y: buf[config.block_y]
+        y: buf[config.block_y],
     }
 }

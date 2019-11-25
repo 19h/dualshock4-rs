@@ -1,36 +1,42 @@
 extern crate hidapi;
+
 use self::hidapi::{HidApi, HidDevice, HidResult};
 
 mod battery_level;
 
 pub mod headset;
-pub use self::headset::{Headset};
+
+pub use self::headset::Headset;
 
 pub mod buttons;
+
 pub use self::buttons::{Buttons, Button};
 
 pub mod analog_sticks;
+
 pub use self::analog_sticks::{AnalogSticks, AnalogStick};
 
 pub mod touchpad;
+
 pub use self::touchpad::{Touchpad, TouchpadTouch};
 
 pub mod motion;
-pub use self::motion::{Motion};
 
-const DUALSHOCK4_VENDOR_ID:u16 = 0x54c;
+pub use self::motion::Motion;
+
+const DUALSHOCK4_VENDOR_ID: u16 = 0x54c;
 
 // Dualshock4 product ID changed after playstation update 5.50
-const DUALSHOCK4_PRODUCT_ID_NEW:u16 = 0x9cc;
-const DUALSHOCK4_PRODUCT_ID_OLD:u16 = 0x5c4;
+const DUALSHOCK4_PRODUCT_ID_NEW: u16 = 0x9cc;
+const DUALSHOCK4_PRODUCT_ID_OLD: u16 = 0x5c4;
 
-const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH:usize = 64;
-const DUALSHOCK4_BLUETOOTH_RAW_BUFFER_DATA_LENGTH:usize = 10;
+const DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH: usize = 64;
+const DUALSHOCK4_BLUETOOTH_RAW_BUFFER_DATA_LENGTH: usize = 10;
 
 #[derive(PartialEq, Debug)]
 pub enum ConnectionType {
     Usb,
-    Bluetooth
+    Bluetooth,
 }
 
 #[derive(PartialEq, Debug)]
@@ -41,7 +47,7 @@ pub struct Dualshock4Data {
     pub analog_sticks: AnalogSticks,
     pub buttons: Buttons,
     pub touchpad: Touchpad,
-    pub motion: Motion
+    pub motion: Motion,
 }
 
 pub type Dualshock4Error = &'static str;
@@ -84,7 +90,7 @@ fn decode_buf(connection_type: ConnectionType, buf: &[u8]) -> Dualshock4Result<D
         analog_sticks,
         buttons,
         touchpad,
-        motion
+        motion,
     })
 }
 
@@ -117,7 +123,7 @@ mod tests {
         assert_eq!(expected, decoded);
     }
 
-    fn generate_test_usb_data(buf: &mut[u8]) -> Dualshock4Data {
+    fn generate_test_usb_data(buf: &mut [u8]) -> Dualshock4Data {
         let battery_level = generate_battery_level_data(&mut buf[..]);
         let headset = generate_headset_data(&mut buf[..]);
         let analog_sticks = generate_analog_sticks_data(&mut buf[..]);
@@ -132,12 +138,12 @@ mod tests {
             analog_sticks,
             buttons,
             touchpad,
-            motion
+            motion,
         }
     }
 
-    fn generate_battery_level_data(buf: &mut[u8]) -> u8 {
-        let value:u8 = rand::thread_rng().gen_range(0, 22);
+    fn generate_battery_level_data(buf: &mut [u8]) -> u8 {
+        let value: u8 = rand::thread_rng().gen_range(0, 22);
         buf[battery_level::DATA_BLOCK_BATTERY_LEVEL] = value;
         return value;
     }
@@ -166,19 +172,20 @@ mod tests {
 
         AnalogSticks {
             left,
-            right
+            right,
         }
     }
 
     fn generate_analog_stick_data(config: &analog_sticks::AnalogStickConfig, buf: &mut [u8]) -> AnalogStick {
-        let x:u8 = rand::thread_rng().gen();
-        let y:u8 = rand::thread_rng().gen();
+        let x: u8 = rand::thread_rng().gen();
+        let y: u8 = rand::thread_rng().gen();
 
         buf[config.block_x] = x;
         buf[config.block_y] = y;
 
         AnalogStick {
-            x, y
+            x,
+            y,
         }
     }
 
@@ -205,14 +212,14 @@ mod tests {
             left_stick: generate_button_data(buttons::CONFIG.left_stick, &mut buf[..]),
             right_stick: generate_button_data(buttons::CONFIG.right_stick, &mut buf[..]),
             l2: generate_button_data(buttons::CONFIG.l2, &mut buf[..]),
-            r2: generate_button_data(buttons::CONFIG.r2, &mut buf[..])
+            r2: generate_button_data(buttons::CONFIG.r2, &mut buf[..]),
         }
     }
 
     fn generate_button_data(config: buttons::ButtonConfig, buf: &mut [u8]) -> Button {
-        static mut IS_DPAD_PRESSED:bool = false;
+        static mut IS_DPAD_PRESSED: bool = false;
         let is_dpad_up_config = config.value == buttons::CONFIG.dpad_up.value;
-        let mut is_pressed:bool = rand::thread_rng().gen();
+        let mut is_pressed: bool = rand::thread_rng().gen();
 
         // special case for dpads, because only one can pressed at the time.
         if config.block == 0x05 && config.value < 0x08 {
@@ -246,28 +253,28 @@ mod tests {
 
         Button {
             pressed: is_pressed,
-            analog_value
+            analog_value,
         }
     }
 
     fn generate_touchpad_data(buf: &mut [u8]) -> Touchpad {
         Touchpad {
             touch_1: generate_touchpad_touch_data(touchpad::CONFIG.touch_1, buf),
-            touch_2: generate_touchpad_touch_data(touchpad::CONFIG.touch_2, buf)
+            touch_2: generate_touchpad_touch_data(touchpad::CONFIG.touch_2, buf),
         }
     }
 
     fn generate_touchpad_touch_data(config: touchpad::TouchpadTouchConfig, buf: &mut [u8]) -> TouchpadTouch {
-        const TOUCHPAD_RESOLUTION_WIDTH:u16 = 943;
-        const TOUCHPAD_RESOLUTION_HEIGHT:u16 = 1920;
+        const TOUCHPAD_RESOLUTION_WIDTH: u16 = 943;
+        const TOUCHPAD_RESOLUTION_HEIGHT: u16 = 1920;
 
-        let active:bool = rand::thread_rng().gen();
+        let active: bool = rand::thread_rng().gen();
         let mut x = None;
         let mut y = None;
 
         if active {
-            let temp_x:u16 = rand::thread_rng().gen_range(0, TOUCHPAD_RESOLUTION_WIDTH);
-            let temp_y:u16 = rand::thread_rng().gen_range(0, TOUCHPAD_RESOLUTION_HEIGHT);
+            let temp_x: u16 = rand::thread_rng().gen_range(0, TOUCHPAD_RESOLUTION_WIDTH);
+            let temp_y: u16 = rand::thread_rng().gen_range(0, TOUCHPAD_RESOLUTION_HEIGHT);
 
             buf[config.data_block_a] = (temp_x & 0xff) as u8;
             buf[config.data_block_b] = (((temp_y | 0xf0) << 4) ^ ((temp_x | 0x0f) >> 8)) as u8;
@@ -282,17 +289,17 @@ mod tests {
         TouchpadTouch {
             active,
             x,
-            y
+            y,
         }
     }
 
-    fn generate_motion_data(buf: &mut[u8]) -> Motion {
-        let x:i16 = rand::thread_rng().gen();
-        let y:i16 = rand::thread_rng().gen();
-        let z:i16 = rand::thread_rng().gen();
-        let roll:i16 = rand::thread_rng().gen();
-        let yaw:i16 = rand::thread_rng().gen();
-        let pitch:i16 = rand::thread_rng().gen();
+    fn generate_motion_data(buf: &mut [u8]) -> Motion {
+        let x: i16 = rand::thread_rng().gen();
+        let y: i16 = rand::thread_rng().gen();
+        let z: i16 = rand::thread_rng().gen();
+        let roll: i16 = rand::thread_rng().gen();
+        let yaw: i16 = rand::thread_rng().gen();
+        let pitch: i16 = rand::thread_rng().gen();
 
         buf.pwrite_with::<i16>(x, motion::CONFIG.motion_x, scroll::BE).unwrap();
         buf.pwrite_with::<i16>(y, motion::CONFIG.motion_y, scroll::BE).unwrap();
@@ -302,8 +309,12 @@ mod tests {
         buf.pwrite_with::<i16>(pitch, motion::CONFIG.gyro_z, scroll::BE).unwrap();
 
         Motion {
-            x, y, z,
-            roll, yaw, pitch
+            x,
+            y,
+            z,
+            roll,
+            yaw,
+            pitch,
         }
     }
 }

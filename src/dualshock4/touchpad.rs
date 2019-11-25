@@ -1,47 +1,47 @@
 pub struct TouchpadTouchConfig {
-    pub active_block:usize,
-    pub data_block_a:usize,
-    pub data_block_b:usize,
-    pub data_block_c:usize
+    pub active_block: usize,
+    pub data_block_a: usize,
+    pub data_block_b: usize,
+    pub data_block_c: usize,
 }
 
 pub struct TouchpadConfig {
     pub touch_1: TouchpadTouchConfig,
-    pub touch_2: TouchpadTouchConfig
+    pub touch_2: TouchpadTouchConfig,
 }
 
-pub const CONFIG:TouchpadConfig = TouchpadConfig {
+pub const CONFIG: TouchpadConfig = TouchpadConfig {
     touch_1: TouchpadTouchConfig {
         active_block: 0x23,
         data_block_a: 0x24,
         data_block_b: 0x25,
-        data_block_c: 0x26
+        data_block_c: 0x26,
     },
     touch_2: TouchpadTouchConfig {
         active_block: 0x27,
         data_block_a: 0x28,
         data_block_b: 0x29,
-        data_block_c: 0x2a
-    }
+        data_block_c: 0x2a,
+    },
 };
 
 #[derive(PartialEq, Debug)]
 pub struct TouchpadTouch {
-    pub active:bool,
+    pub active: bool,
     pub x: Option<u16>,
-    pub y: Option<u16>
+    pub y: Option<u16>,
 }
 
 #[derive(PartialEq, Debug)]
 pub struct Touchpad {
-    pub touch_1:TouchpadTouch,
-    pub touch_2:TouchpadTouch
+    pub touch_1: TouchpadTouch,
+    pub touch_2: TouchpadTouch,
 }
 
 pub fn decode(buf: &[u8]) -> Touchpad {
     Touchpad {
         touch_1: decode_touch(&CONFIG.touch_1, buf),
-        touch_2: decode_touch(&CONFIG.touch_2, buf)
+        touch_2: decode_touch(&CONFIG.touch_2, buf),
     }
 }
 
@@ -61,7 +61,9 @@ fn decode_touch(config: &TouchpadTouchConfig, buf: &[u8]) -> TouchpadTouch {
     };
 
     TouchpadTouch {
-        active, x, y
+        active,
+        x,
+        y,
     }
 }
 

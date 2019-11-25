@@ -1,5 +1,5 @@
-#![cfg_attr(feature="clippy", feature(plugin))]
-#![cfg_attr(feature="clippy", plugin(clippy))]
+#![cfg_attr(feature = "clippy", feature(plugin))]
+#![cfg_attr(feature = "clippy", plugin(clippy))]
 
 #![feature(test)]
 extern crate test;
@@ -15,5 +15,5 @@ pub use dualshock4::{
     Buttons,
     Button,
     AnalogSticks,
-    AnalogStick
+    AnalogStick,
 };

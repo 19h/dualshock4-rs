@@ -1,15 +1,15 @@
-pub const DATA_BLOCK_HEADSET:usize = 0x1e;
+pub const DATA_BLOCK_HEADSET: usize = 0x1e;
 
-pub const HEADSET_MASK_NONE:u8 = 0x1b;
-pub const HEADSET_MASK_HEADPHONES:u8 = 0x3b;
-pub const HEADSET_MASK_HEADSET_WITH_MIC:u8 = 0x7b;
+pub const HEADSET_MASK_NONE: u8 = 0x1b;
+pub const HEADSET_MASK_HEADPHONES: u8 = 0x3b;
+pub const HEADSET_MASK_HEADSET_WITH_MIC: u8 = 0x7b;
 
 #[derive(PartialEq, Debug)]
 pub enum Headset {
     None,
     Headphones,
     HeadsetWithMic,
-    Unknown
+    Unknown,
 }
 
 pub fn decode(buf: &[u8]) -> Headset {
@@ -20,5 +20,5 @@ pub fn decode(buf: &[u8]) -> Headset {
         HEADSET_MASK_HEADPHONES => Headset::Headphones,
         HEADSET_MASK_HEADSET_WITH_MIC => Headset::HeadsetWithMic,
         _ => Headset::Unknown
-    }
+    };
 }
