@@ -1,6 +1,6 @@
 extern crate hidapi;
 
-use self::hidapi::{HidApi, HidDevice, HidResult};
+use self::hidapi::{HidApi, HidDevice, HidResult, HidError};
 
 mod battery_level;
 
@@ -50,7 +50,7 @@ pub struct Dualshock4Data {
     pub motion: Motion,
 }
 
-pub type Dualshock4Error = &'static str;
+pub type Dualshock4Error = HidError;
 pub type Dualshock4Result<T> = Result<T, Dualshock4Error>;
 
 /// Open Dualshock4 device.
@@ -70,7 +70,7 @@ pub fn read(controller: &HidDevice) -> Dualshock4Result<Dualshock4Data> {
     match controller.read(&mut buf[..]) {
         Ok(DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH) => decode_buf(ConnectionType::Usb, &buf),
         Ok(DUALSHOCK4_BLUETOOTH_RAW_BUFFER_DATA_LENGTH) => decode_buf(ConnectionType::Bluetooth, &buf),
-        Ok(_) => Err("Unexpected data length"),
+        Ok(_) => Err(hidapi::HidError::HidApiError { message: "Unexpected data length".into() }),
         Err(err) => Err(err)
     }
 }
@@ -118,7 +118,7 @@ mod tests {
     fn test_decode_usb_buf() {
         let mut buf = [0u8; DUALSHOCK4_USB_RAW_BUFFER_DATA_LENGTH];
         let expected = generate_test_usb_data(&mut buf[..]);
-        let decoded = decode_buf(ConnectionType::Usb, &buf).expect("Decoding failed");
+        let decoded = decode_buf(ConnectionType::Usb, &buf).expect("Decoding.parse().unwrap() failed");
 
         assert_eq!(expected, decoded);
     }
